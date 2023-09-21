@@ -1,6 +1,10 @@
 
 # Creating files and folders
 
+## Initialisation
+
+Avant de commencer l'exercice, exécuter la commande `~/etrs514/exo1.py init`
+
 ## Ennoncé
 
 - En une seule commande, créer le dossier **/home/etudiant/exercice1**.
@@ -21,6 +25,6 @@ done
 ./exo1.sh
 ```
 
-## Validation
+## Vérification
 
-- Executer la commande check_exo1.py
+- Pour vérifier, exécuter la commande `~/etrs514/exo1.py check`.
