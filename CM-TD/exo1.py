@@ -3,10 +3,28 @@
 import os
 import argparse
 import logging
+import subprocess
+import signal
 
+
+def delete_history():
+    '''
+    Delete .bash_history file and execute history -c
+    Ca nécessite de fermer la session et de la réouvrir
+    '''
+    print ("***Cette fonction va fermer automatiquement votre session ssh***\nRéouvrir une session ssh après son exécution")
+    home_directory=os.path.expanduser("~")
+    history_path=os.path.join(home_directory,".bash_history")
+    if os.path.isfile(history_path):
+        os.remove(history_path)
+    subprocess.run(["history","-c"],shell=True)
+    os.kill(os.getppid(),signal.SIGHUP)
+    
+    
 
 def init():
     logging.debug("Init not finished yet. Don't use")
+    delete_history()
 
 def check():
     logging.debug("Check not finished yet. Don't use")
