@@ -6,10 +6,10 @@ import logging
 
 
 def init():
-    logging.debug("Init")
+    logging.debug("Init not finished yet. Don't use")
 
 def check():
-    logging.debug("Check")
+    logging.debug("Check not finished yet. Don't use")
 
 if "__name__"=="__main__":
     logging.basicConfig(level=logging.DEBUG)
