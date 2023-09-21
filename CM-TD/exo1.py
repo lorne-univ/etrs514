@@ -5,6 +5,10 @@ import argparse
 import logging
 import subprocess
 import signal
+import shutil
+
+colors= {'red':"\033[31m", 'green':"\033[32m", 'reset':"\033[0m"}
+
 
 
 def delete_history():
@@ -25,9 +29,34 @@ def delete_history():
 def init():
     logging.debug("Init not finished yet. Don't use")
     delete_history()
+    home_directory=os.path.expanduser("~")
+    path=os.path.join(home_directory,"exercice1")
+    shutil.rmtree(path)
+    path=os.path.join(home_directory,"exercice1_b.txt")
+    if os.path.isfile(path):
+        os.remove(path)
+
 
 def check():
     logging.debug("Check not finished yet. Don't use")
+    #Check exercice1_a.txt
+    folder = "/home/etudiant/exercice1"
+    file = "exercice1_a.txt"
+    expected_content = "Premier test de création de fichier"
+    if os.path.exists(folder):
+        print(f"{colors['green']} {folder} -> found {colors['reset']}")
+        if path:=os.path.exists(os.path.join(folder,file)):
+            print(f"{colors.get('green')} {file} -> OK {colors['reset']}")
+            with open(path,"r") as file:
+                content=file.read()
+                if content==expected_content:
+                    print(f"{colors['green']} content of {file} -> OK {colors['reset']}")
+                else:
+                    print(f"{colors['red']} content of {file} -> KO {colors['reset']}")
+        else:
+            print(f"{colors['red']} {file} -> not found {colors['reset']}")
+    else:
+        print(f"{colors['red']} {folder} -> not found {colors['reset']}")
 
 if __name__=="__main__":
 
