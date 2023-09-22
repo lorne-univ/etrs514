@@ -15,7 +15,7 @@ Deuxième test de création de fichier.
 Utilisation d'un éditeur.
 C'est moins rapide mais ça fonctionne aussi.
 ```
-> Ici le plus simple est d'utiliser un éditeur de texte et de faire un copier-coller (recherche les raccourcis clavier MobaXterm pour des copier et coller).<br>
+> Ici le plus rapide est d'utiliser un éditeur de texte et de faire un copier-coller (recherche les raccourcis clavier MobaXterm pour des copier et coller).<br>
 
 - Créer une copie du fichier précédent (**exercice_1b.txt**) dans le dossier **/home/etudiant**.
 - Créer un fichier **/home/etudiant/exercice1/exo1.sh** contenant les lignes suivantes :
@@ -26,7 +26,7 @@ do
     echo "Line number ${i+2}" >> /home/etudiant/exercice1_b.txt 
 done
 ```
-> Ici le plus simple est d'utiliser un éditeur de texte ***nano*** ou ***vi*** ou ***vim*** et de faire un copier-coller depuis MobaXterm<br>
+> Le plus rapide est d'utiliser un éditeur de texte ***nano*** ou ***vi*** ou ***vim*** et de faire un copier-coller depuis MobaXterm<br>
 - Rendre le script exécutable puis l'exécuter.<br>
 ```
 ./exo1.sh
