@@ -110,11 +110,21 @@ def check_content_of_file(file_path, expected_content):
         print_red(f"{file_path} -> not found")
 
 
+def create_expected_content_file3():
+    """
+    file3 is a copy of file2 that also contains 31 lines numeroted
+    """
+    expected_content_file3 = """Deuxième test de création de fichier.\nUtilisation d'un éditeur.\nC'est moins rapide mais ça fonctionne aussi.\n"""
+    for i in range(1, 32):
+        expected_content_file3 = expected_content_file3 + f"Line number {i+2}\n"
+    return expected_content_file3
+
+
 def check():
     # Check exercice1_a.txt
     folder = "/home/etudiant/exercice1"
     file1 = "exercice1_a.txt"
-    file2 = "exercice1-b.txt"
+    file2 = "exercice1_b.txt"
     expected_content_file1 = """Premier test de création de fichier\n"""
     expected_content_file2 = """Deuxième test de création de fichier.\nUtilisation d'un éditeur.\nC'est moins rapide mais ça fonctionne aussi."""
     if os.path.exists(folder):
@@ -145,9 +155,8 @@ def check():
     else:
         print_red(f"{file_path} -> not found")
 
-    # Check copy of file
-    # if os.path.exists("/home/etudiant/exercice1-b.txt"):
-    #     expected_content_file2=
+    # Check copy of file : there are two files with the same name {file2} but not in the same directory
+    check_content_of_file(f"/home/etudiant/{file2}", create_expected_content_file3())
 
 
 if __name__ == "__main__":
@@ -170,3 +179,4 @@ if __name__ == "__main__":
         init()
     elif action == "check":
         check()
+    # print(create_expected_content_file3())
