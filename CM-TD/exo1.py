@@ -160,12 +160,12 @@ def check():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logging.info(
-        "{}PROGRAM not finished yet. Don't use !!!{}".format(
-            colors["red"], colors["reset"]
-        )
-    )
+    # logging.basicConfig(level=logging.INFO)
+    # logging.info(
+    #     "{}PROGRAM not finished yet. Don't use !!!{}".format(
+    #         colors["red"], colors["reset"]
+    #     )
+    # )
     parser = argparse.ArgumentParser(
         prog="exo1",
         description="Programme de test et d'initialisation de l'exo1 lié au CM et TD",
