@@ -18,7 +18,7 @@ Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exo1.py in
 ## Ennoncé
 
 - En une seule commande, créer le dossier **/home/etudiant/exercice1**.
-- Dans ce dossier, en utilisant la commande ***echo*** et la redirection vers un fichier, créer un fichier nommé **exercice1_a.txt** contenant le texte : **Premier test de création de fichier**.
+- Dans ce dossier, en utilisant la commande ***echo*** et la redirection vers un fichier, créer un fichier nommé **exercice1_a.txt** contenant le texte : **Premier test de création de fichier.**.
 - Dans ce dossier, en utilisant un éditeur de texte ***nano*** ou ***vi*** ou ***vim*** créer un fichier nommé **exercice1_b.txt** contenant le texte : 
 ```
 Deuxième test de création de fichier.
