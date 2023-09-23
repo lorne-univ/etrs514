@@ -39,10 +39,10 @@ On va maintenant vérifier à quel(s) groupe(s) appartient l'utilisateur nouvell
 
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
  - En tant qu'utilisateur root, créer un dossier **/test1**
- - La commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 test1`
- - En tant qu'utilisateur user1, essayer de créer un fichier **/test1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
+ - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 test1`
+ - En tant qu'utilisateur **user1**, essayer de créer un fichier **/test1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
  - Modifier les permissions pour que tous les utilisateurs du système ait le droit d'écrire dans le dossier /test1.
- - Après la modification des permissions la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 test1`
+ - Après la modification des permissions le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 test1`
 
 
 ## Vérification
