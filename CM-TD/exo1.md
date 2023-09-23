@@ -33,7 +33,7 @@ C'est moins rapide mais ça fonctionne aussi.
 #!/bin/sh
 for i in {1..31}
 do
-    echo "Line number $((${i}+2)" >> /home/etudiant/exercice1_b.txt 
+    echo "Line number $((${i}+2))" >> /home/etudiant/exercice1_b.txt 
 done
 ```
 > Le plus rapide est d'utiliser un éditeur de texte ***nano*** ou ***vi*** ou ***vim*** et de faire un copier-coller depuis MobaXterm<br>
