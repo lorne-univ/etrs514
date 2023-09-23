@@ -153,7 +153,9 @@ def check():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logging.info(
-        "{}PROGRAM not finished yet. Don't use{}".format(colors["red"], colors["reset"])
+        "{}PROGRAM not finished yet. Don't use !!!{}".format(
+            colors["red"], colors["reset"]
+        )
     )
     parser = argparse.ArgumentParser(
         prog="exo1",
