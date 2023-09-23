@@ -22,6 +22,7 @@ Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.
 ```
 sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step1
 ```
+
 On va voir que lorsqu'un processus est exécuté, il est bien associé à l'utilisateur qui l'a lancé. 
 - Ouvrir un nouvel onglet dans MobaXterm.
 - Démarrer une nouvelle connexion ssh à votre machine virtuelle en tant qu'utilisateur **user1**.
@@ -30,10 +31,21 @@ On va voir que lorsqu'un processus est exécuté, il est bien associé à l'util
 - Afficher la liste de tous les processus et filtrer sur la chaîne user1 en exécutant la commande `ps aux | grep user1`
 - Vérifier que vous voyez bien une ligne `user1      38295  0.0  0.1 220956  1024 pts/8    S+   15:48   0:00 sleep 500`
 
-### Etape 2 : 
+On va maintenant vérifier à quel(s) groupe(s) appartient l'utilisateur nouvellement créé.
+- Visualiser le contenu du fichier présent dans /etc, contenant la liste des groupes et pour chaque groupe donnant les utilisateurs qui sont associés.
+- Vérifier que ce fichier contient une ligne ressemblant à `user1:x:1002:`
+> On note que l'utilisateur user1 n'est pas noté comme appartenant au groupe user1. C'est normal, lorsque le groupe est le groupe primaire d'un utlisateur, l'utilisateur n'apparaît pas.
+- En utilisant la commande `id -gn` vérifier que user1 est bien le group primaire de user1.
+
+### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
+ - En tant qu'utilisateur root, créer un dossier **/test1**
+ - La commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 test1`
+ - En tant qu'utilisateur user1, essayer de créer un fichier **/test1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
+ - Modifier les permissions pour que tous les utilisateurs du système ait le droit d'écrire dans le dossier /test1.
+ - Après la modification des permissions la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 test1`
 
 
 ## Vérification
 
-- Pour vérifier votre travail, exécuter la commande `~/etrs514/CM-TD/exo1.py check`.
+- Pour vérifier votre travail, exécuter la commande `sudo /home/etudiant/etrs514/CM-TD/exercice2.py check`.
 > Attention, la vérification n'est pas exhaustive. Il faut avant tout que vous ayez bien compris votre travail.
