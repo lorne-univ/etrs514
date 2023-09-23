@@ -23,7 +23,7 @@ C'est moins rapide mais ça fonctionne aussi.
 #!/bin/sh
 for i in {1..31}
 do
-    echo "Line number ${i+2}" >> /home/etudiant/exercice1_b.txt 
+    echo "Line number $((${i}+2)" >> /home/etudiant/exercice1_b.txt 
 done
 ```
 > Le plus rapide est d'utiliser un éditeur de texte ***nano*** ou ***vi*** ou ***vim*** et de faire un copier-coller depuis MobaXterm<br>
@@ -31,7 +31,9 @@ done
 ```
 ./exo1.sh
 ```
-
+- Visualiser le contenu du fichier /home/etudiant/exercice1_b.txt.
+> 1. Vérifier que les trois lignes écrites avant l'exécution du script sont bien présentes.
+> 2. Vérifier que le contenu du fichier correspond à celui attendu (comprendre ce que réalise le script) 
 ## Vérification
 
 - Pour vérifier, exécuter la commande `~/etrs514/exo1.py check`.
