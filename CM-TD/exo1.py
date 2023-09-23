@@ -12,6 +12,24 @@ import difflib
 colors = {"red": "\033[31m", "green": "\033[32m", "reset": "\033[0m"}
 
 
+def print_red(string):
+    """
+    print in red
+    string : string to print
+
+    """
+    print(f"{colors['red']}{string}{colors['reset']}")
+
+
+def print_green(string):
+    """
+    print in green
+    string : string to print
+
+    """
+    print(f"{colors['green']}{string}{colors['reset']}")
+
+
 def delete_history():
     """
     Delete .bash_history file and execute history -c
@@ -71,7 +89,7 @@ def compare_two_text(text1, text2):
 
 def check_content_of_file(file_path, expected_content):
     if os.path.exists(file_path):
-        print(f"{colors.get('green')} {file_path} -> found {colors['reset']}")
+        print_green(f"{file_path} -> found")
         with open(file_path, "r") as file:
             read_content = file.read()
             logging.debug(
@@ -81,17 +99,15 @@ def check_content_of_file(file_path, expected_content):
             )
             comparison = compare_two_text(expected_content, read_content)
             if comparison["same_text"]:
-                print(
-                    f"{colors['green']} content of {file_path} -> OK {colors['reset']}"
-                )
+                print_green(f"Content of {file_path} -> OK")
             else:
-                print(f"{colors['red']} content of {file_path} -> KO {colors['reset']}")
+                print_red(f"Content of {file_path} -> KO")
                 print(
                     f"Diff between expected and read content of {file_path} :\n{comparison.get('diff', '')}"
                 )
 
     else:
-        print(f"{colors['red']} {file_path} -> not found {colors['reset']}")
+        print_red(f"{file_path} -> not found")
 
 
 def check():
@@ -102,7 +118,7 @@ def check():
     expected_content_file1 = """Premier test de création de fichier\n"""
     expected_content_file2 = """Deuxième test de création de fichier.\nUtilisation d'un éditeur.\nC'est moins rapide mais ça fonctionne aussi."""
     if os.path.exists(folder):
-        print(f"{colors['green']} {folder} -> found {colors['reset']}")
+        print_green(f"{folder} -> found")
         file_path = os.path.join(folder, file1)
         # Test file1 content
         check_content_of_file(
@@ -114,7 +130,24 @@ def check():
             file_path=file_path, expected_content=expected_content_file2
         )
     else:
+        os.access(
+            "/home/etudiant/exercice1/exo1.sh",
+        )
         print(f"{colors['red']} {folder} -> not found {colors['reset']}")
+    # Check bash script
+    file_path = "/home/etudiant/exercice1/exo1.sh"
+    if os.path.exists(file_path):
+        print_green(f"{file_path} -> found")
+        if os.access(file_path, os.X_OK):
+            print_green(f"Execution access on {file_path} is OK")
+        else:
+            print_red(f"Execution access on {file_path} isn't set")
+    else:
+        print_red(f"{file_path} -> not found")
+
+    # Check copy of file
+    # if os.path.exists("/home/etudiant/exercice1-b.txt"):
+    #     expected_content_file2=
 
 
 if __name__ == "__main__":
