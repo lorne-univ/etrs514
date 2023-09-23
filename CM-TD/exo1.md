@@ -3,9 +3,12 @@
 
 > Retrouver une version plus facilement lisible de ce document ici : https://github.com/lorne-univ/etrs514/blob/main/CM-TD/exo1.md
 
+Ce premier exercice revient sur les manipulations de bases (création, édition, copie, suppression) sur les fichiers.
+
 ## Initialisation
 
 Avant de commencer l'exercice, exécuter la commande `~/etrs514/exo1.py init`
+> Si vous voulez recommencer l'exercice, vous pouvez exécuter à nouveau cette commande pour repartir d'un environnement "vierge"
 
 ## Ennoncé
 
