@@ -4,6 +4,11 @@
 > Retrouver une version plus facilement lisible de ce document ici : https://github.com/lorne-univ/etrs514/blob/main/CM-TD/exo1.md
 
 Ce premier exercice revient sur les manipulations de bases (création, édition, copie, suppression) sur les fichiers.
+Vérifier que vous avez bien la dernière version des fichiers : 
+```
+cd ~/etrs514
+git pull
+```
 
 ## Initialisation
 
