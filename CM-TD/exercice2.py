@@ -8,6 +8,8 @@ import signal
 import shutil
 import difflib
 import sys
+import pwd
+import spwd
 
 
 colors = {"red": "\033[31m", "green": "\033[32m", "reset": "\033[0m"}
@@ -105,8 +107,41 @@ def check_content_of_file(file_path, expected_content):
         print_red(f"{file_path} -> not found")
 
 
+def check_user_exists(user_name):
+    """
+    This check the existence of the user in the /etc/passwd
+    """
+    try:
+        pwd.getpwnam(user_name)
+    except KeyError:
+        print_red(f"{user_name} doesn't exists")
+        exit(1)
+    print_green(f"{user_name} exists")
+
+
+def check_user_password_set(user_name):
+    try:
+        shadow_password = spwd.getspnam(user_name).sp_pwdp
+        logging.debug("{}".format(shadow_password))
+    except PermissionError:
+        print_red("The program exerice2.py must be started as root. use sudo")
+        exit(1)
+    except KeyError:
+        print_red(f"no password found for {user_name}")
+        exit(1)
+    if shadow_password != "!!":
+        print_green(f"{user_name} has a password")
+    else:
+        print_red(f"no password found for {user_name}")
+        exit(1)
+
+
 def check_step1():
-    pass
+    """
+    Check if user1 exists
+    """
+    check_user_exists("user1")
+    check_user_password_set("user1")
 
 
 def check_step2():
