@@ -126,7 +126,7 @@ def check():
     folder = "/home/etudiant/exercice1"
     file1 = "exercice1_a.txt"
     file2 = "exercice1_b.txt"
-    expected_content_file1 = """Premier test de création de fichier\n"""
+    expected_content_file1 = """Premier test de création de fichier.\n"""
     expected_content_file2 = """Deuxième test de création de fichier.\nUtilisation d'un éditeur.\nC'est moins rapide mais ça fonctionne aussi."""
     if os.path.exists(folder):
         print_green(f"{folder} -> found")
