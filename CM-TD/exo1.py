@@ -50,7 +50,8 @@ def init():
     # delete_history()
     home_directory = os.path.expanduser("~")
     path = os.path.join(home_directory, "exercice1")
-    shutil.rmtree(path)
+    if os.path.exists(path):
+        shutil.rmtree(path)
     path = os.path.join(home_directory, "exercice1_b.txt")
     if os.path.isfile(path):
         os.remove(path)
