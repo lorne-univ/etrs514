@@ -49,8 +49,36 @@ def delete_history():
     os.kill(os.getppid(), signal.SIGHUP)
 
 
-def init():
+def init_step1():
+    """
+    Remove user1 add during step1
+    """
+    subprocess.run(["userdel", "user1"], shell=True)
+
+
+def init_step2():
+    """ """
     pass
+
+
+def init_step3():
+    """ """
+    pass
+
+
+def init_all():
+    """ """
+    pass
+
+
+def init():
+    steps = {
+        "step1": init_step1,
+        "step2": init_step2,
+        "step3": init_step3,
+        "all": init_all,
+    }
+    steps.get(step, check_all)()
 
 
 def compare_two_text(text1, text2):
