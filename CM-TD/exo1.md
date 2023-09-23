@@ -46,5 +46,5 @@ done
 > 2. Vérifier que le contenu du fichier correspond à celui attendu (comprendre ce que réalise le script) 
 ## Vérification
 
-- Pour vérifier votre travail, exécuter la commande `~/etrs514/exo1.py check`.
+- Pour vérifier votre travail, exécuter la commande `~/etrs514/CM-TD/exo1.py check`.
 > Attention, la vérification n'est pas exhaustive. Il faut avant tout que vous ayez bien compris votre travail.
