@@ -53,7 +53,10 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1
 ```
 sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
 ```
-
+ - Noter les permissions sur le fichier **/test1/user1.txt**.
+    - Propriétaire : user1
+    - Groupe propriétaire : user1
+    - mode : 0644
 
 
 ## Vérification
