@@ -9,6 +9,7 @@ import shutil
 import difflib
 import sys
 import pwd
+import grp
 import spwd
 
 
@@ -49,11 +50,22 @@ def delete_history():
     os.kill(os.getppid(), signal.SIGHUP)
 
 
+def init_step0():
+    """
+    Remove user1 add during step1
+    """
+    pass
+
+
 def init_step1():
     """
     Remove user1 add during step1
     """
-    subprocess.run(["userdel", "user1"], shell=True)
+    process = subprocess.run(
+        ["sudo", "/usr/sbin/userdel", "-r", "user1"], capture_output=True
+    )
+    if process.returncode != 0:
+        logging.info("init_step1 : {}".format(process.stderr.decode("utf-8")))
 
 
 def init_step2():
@@ -71,14 +83,18 @@ def init_all():
     pass
 
 
-def init():
+def init(step):
+    """
+    To initialize the VM, remove content
+    step : the step to initialize
+    """
     steps = {
         "step1": init_step1,
         "step2": init_step2,
         "step3": init_step3,
         "all": init_all,
     }
-    steps.get(step, check_all)()
+    steps.get(step, init_all)()
 
 
 def compare_two_text(text1, text2):
@@ -171,10 +187,34 @@ def check_step1():
     check_user_exists("user1")
     check_user_password_set("user1")
 
+def check_permissionss(file,expected_permission):
+    '''
+    file : path of the file
+    expected_permission : {"owner" : ,"group" :, "perms": "777"   }
+    return : True or False
+    '''
+    statinfo=os.stat(file)
+    if pwd.getpwuid(statinfo.st_uid).pw_name ==expected_permission["name"]:
+        if grp.getgrgid(statinfo.st_gid).gr_name == expected_permission["group"]:
+            
+
 
 def check_step2():
-    pass
+    """
+    Check if folder /test1/user1 exists
+    Check permissions on /test1/user1 rwx???rwx
+    Check if file 
 
+    """
+    folder = "/test1"
+    if os.path.exists(folder):
+        print_green(f"{folder} exists")
+        #Check permission
+        os.stat(folder)
+
+    else:
+        print_red(f"{folder} not found")
+    file1 = "exercic"
 
 def check_step3():
     logging.debug("3")
@@ -185,6 +225,10 @@ def check_all():
 
 
 def check(step):
+    """
+    Check if the student made a good job
+    step : step1, step2
+    """
     steps = {
         "step1": check_step1,
         "step2": check_step2,
@@ -216,11 +260,26 @@ if __name__ == "__main__":
     action = vars(args)["action"]
     step = vars(args).get("step", None)
     if step is None:
-        print(
-            f"You didn't enter a step to check or init. You can do it : \nexercice2 check --step step1."
-        )
-    if action == "init":
-        init()
-    elif action == "check":
-        check(step)
-    # print(create_expected_content_file3())
+        if action == "init":
+            print(
+                f"You didn't enter a step to init.\All the step will be initialized\nIf you to initialize a step you can do it :\nexercice2 check --step step1."
+            )
+            ans = input("Are you sure you want to initialize all ?Y/N")
+            if ans == "Y" or ans == "y":
+                init("all")
+            else:
+                exit(0)
+        elif action == "check":
+            print(
+                f"You didn't enter a step to init.\All the step will be initialized\nIf you to initialize a step you can do it :\nexercice2 check --step step1."
+            )
+            ans = input("Are you sure you want to initialize all ?Y/N")
+            if ans == "Y" or ans == "y":
+                check("all")
+            else:
+                exit(0)
+    else:
+        if action == "init":
+            init(step)
+        elif action == "check":
+            check(step)
