@@ -202,7 +202,7 @@ def check_mode(current_mode, expected_mode):
 def check_permissions(file, expected_permission):
     """
     file : path of the file
-    expected_permission : {"owner" : ,"group" :, "mode": "777"   }
+    expected_permission : {"owner" : root ,"group":root :, "mode": "0777" }
     return : True or False
     """
     statinfo = os.stat(file)
@@ -212,12 +212,12 @@ def check_permissions(file, expected_permission):
         if group == expected_permission["group"]:
             # We focus only on the ISUID/ISGID/ISVTX and owner and group and other permissions [-4:]
             mode = oct(statinfo.st_mode & 0o777)[-4:]
-            if mode == expected_permission["mode"]:
+            if check_mode(mode,expected_permission['mode'])
                 print_green(f"{file} permissons are correct")
                 return True
             else:
                 print_red(
-                    f"{file} mode is not correct.\nExpected:{expected_permission['mode']}\nCurrent:{mode}"
+                    f"{file} mode is not correct.\nExpected:{expected_permission['mode']}\nCurrent:{mode}\If there is a \"!\" in the expected_mode the permission are ignored"
                 )
                 return
         else:
@@ -242,7 +242,7 @@ def check_step2():
     if os.path.exists(folder):
         print_green(f"{folder} exists")
         # Check permission
-        os.stat(folder)
+        check_permissions(folder,{'owner':'root','group':'root','mode':'07!7'})
 
     else:
         print_red(f"{folder} not found")
