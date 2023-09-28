@@ -211,13 +211,15 @@ def check_permissions(file, expected_permission):
         group = grp.getgrgid(statinfo.st_gid).gr_name
         if group == expected_permission["group"]:
             # We focus only on the ISUID/ISGID/ISVTX and owner and group and other permissions [-4:]
-            mode = oct(statinfo.st_mode & 0o777)[-4:]
+            mode = oct(statinfo.st_mode)[-4:]
             if check_mode(mode, expected_permission["mode"]):
-                print_green(f"{file} permissons are correct")
+                print_green(
+                    f"{file} -> Permissions owner, group_owner and mode are correct"
+                )
                 return True
             else:
                 print_red(
-                    f"{file} mode is not correct.\nExpected:{expected_permission['mode']}\nCurrent:{mode}\If there is a \"!\" in the expected_mode the permission are ignored"
+                    f"{file} mode is not correct.\nExpected:\t{expected_permission['mode']}\nCurrent:\t{mode}\nIf a \"!\" remplaces a number in the expected_mode. You can put what you want for this number."
                 )
                 return
         else:
@@ -233,9 +235,9 @@ def check_permissions(file, expected_permission):
 
 def check_step2():
     """
-    Check if folder /test1/user1 exists
-    Check permissions on /test1/user1 rwx???rwx
-    Check if file
+    Check if folder /test1 exists
+    Check permissions on /test1 root root rwx???rwx
+    Check if file /test1/use1.txt exists
 
     """
     folder = "/test1"
@@ -243,10 +245,18 @@ def check_step2():
         print_green(f"{folder} exists")
         # Check permission
         check_permissions(folder, {"owner": "root", "group": "root", "mode": "07!7"})
+        file1 = "/test1/user1.txt"
+        if os.path.exists(file1):
+            print_green(f"{file1} exists")
+            check_permissions(
+                file1, {"owner": "user1", "group": "user1", "mode": "0644"}
+            )
+            check_content_of_file(file1, "Premier test de user1.")
+        else:
+            print_red(f"{file1} not presents")
 
     else:
         print_red(f"{folder} not found")
-    file1 = "exercic1"
 
 
 def check_step3():
