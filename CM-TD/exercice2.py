@@ -187,34 +187,67 @@ def check_step1():
     check_user_exists("user1")
     check_user_password_set("user1")
 
-def check_permissionss(file,expected_permission):
-    '''
+
+def check_mode(current_mode, expected_mode):
+    """
+    Check the mode of a file
+    Exemple current_mode=0777, expected_mode=07!7 -> Return True
+    """
+    for i, char in enumerate(current_mode):
+        if char != expected_mode[i] and expected_mode[i] != "!":
+            return False
+    return True
+
+
+def check_permissions(file, expected_permission):
+    """
     file : path of the file
-    expected_permission : {"owner" : ,"group" :, "perms": "777"   }
+    expected_permission : {"owner" : ,"group" :, "mode": "777"   }
     return : True or False
-    '''
-    statinfo=os.stat(file)
-    if pwd.getpwuid(statinfo.st_uid).pw_name ==expected_permission["name"]:
-        if grp.getgrgid(statinfo.st_gid).gr_name == expected_permission["group"]:
-            
+    """
+    statinfo = os.stat(file)
+    owner = pwd.getpwuid(statinfo.st_uid).pw_name
+    if owner == expected_permission["owner"]:
+        group = grp.getgrgid(statinfo.st_gid).gr_name
+        if group == expected_permission["group"]:
+            # We focus only on the ISUID/ISGID/ISVTX and owner and group and other permissions [-4:]
+            mode = oct(statinfo.st_mode & 0o777)[-4:]
+            if mode == expected_permission["mode"]:
+                print_green(f"{file} permissons are correct")
+                return True
+            else:
+                print_red(
+                    f"{file} mode is not correct.\nExpected:{expected_permission['mode']}\nCurrent:{mode}"
+                )
+                return
+        else:
+            print_red(
+                f"{file} group owner is not correct.\nExpected:{expected_permission['group']}\nCurrent:{group}"
+            )
+    else:
+        print_red(
+            f"{file} owner is not correct.\nExpected:{expected_permission['owner']}\nCurrent:{owner}"
+        )
+    return False
 
 
 def check_step2():
     """
     Check if folder /test1/user1 exists
     Check permissions on /test1/user1 rwx???rwx
-    Check if file 
+    Check if file
 
     """
     folder = "/test1"
     if os.path.exists(folder):
         print_green(f"{folder} exists")
-        #Check permission
+        # Check permission
         os.stat(folder)
 
     else:
         print_red(f"{folder} not found")
     file1 = "exercic"
+
 
 def check_step3():
     logging.debug("3")
