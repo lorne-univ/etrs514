@@ -11,7 +11,7 @@ git pull
 
 ## Initialisation
 
-Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.py init`
+Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.py init --step step0`
 > Si vous voulez recommencer l'exercice, vous pouvez exécuter à nouveau cette commande pour repartir d'un environnement "vierge"
 
 ## Ennoncé
@@ -35,14 +35,25 @@ On va maintenant vérifier à quel(s) groupe(s) appartient l'utilisateur nouvell
 - Visualiser le contenu du fichier présent dans /etc, contenant la liste des groupes et pour chaque groupe donnant les utilisateurs qui sont associés.
 - Vérifier que ce fichier contient une ligne ressemblant à `user1:x:1002:`
 > On note que l'utilisateur user1 n'est pas noté comme appartenant au groupe user1. C'est normal, lorsque le groupe est le groupe primaire d'un utlisateur, l'utilisateur n'apparaît pas.
-- En utilisant la commande `id -gn` vérifier que user1 est bien le group primaire de user1.
+- En utilisant la commande `id -gn` vérifier que user1 est bien le groupe primaire de user1.
+- Pour réinitialiser cette étape : 
+```
+sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1
+```
 
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
  - En tant qu'utilisateur root, créer un dossier **/test1**
  - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 test1`
  - En tant qu'utilisateur **user1**, essayer de créer un fichier **/test1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
- - Modifier les permissions pour que tous les utilisateurs du système ait le droit d'écrire dans le dossier /test1.
+ - Modifier les permissions pour que tous les utilisateurs du système aient la permission d'écrire dans le dossier **/test1**.
  - Après la modification des permissions le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 test1`
+ - En tant qu'utilisateur **user1**, essayer de créer un fichier **/test1/user1.txt**. Ca doit fonctionner.
+ - Ecrire dans le fichier : **Premier test de user1.**
+ - Vérifier :
+```
+sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
+```
+
 
 
 ## Vérification
