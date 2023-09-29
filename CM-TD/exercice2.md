@@ -117,13 +117,26 @@ Plusieurs solutions existent à ce problème :
 - Utilisation du SGID.
 - Utilisation des ACL (façon actuelle et recommandée).
 
-
 - Vérifier votre travail en utilisant le script de vérification :
 
 ```
 sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step5
 ```
 
+### Etape 6 : ACL et héritage
+La machine virtuelle mise à disposition fonctionne avec un système Linux supportant les ACL. *Attention* ce n'est pas le cas de tous les systèmes.
+On va donc mettre à profit cette possibilité pour configurer notre dossier /projet1.
+> On va mettre en place des acl par défaut.
+- Visualiser les acl actuelles `getfacl /projet1`.
+- Exécuter la commande `sudo  setfacl -d -m g:projet1:rwx,o::-- /projet1`. Cette commande fixe comme groupe par défaut **projet1** avec les permissions **rwx** et ne donne aucune permission aux autres utlisateurs.
+- Exécuter la commande `ls -l /` noter le **+** qui apparaît à la fin de la ligne correspondant aux permissions projet1 `drwxrwx---+   2 root projet1   94 29 sept. 11:23 projet1`. Ce **+** indique que des ACL ont été positionnées sur le fichier. Il faut utiliser la commande `getfacl` pour connaitre les véritables permissions sur le fichier.
+- En tant que **user1** créer un fichier **/projet1/user1c.txt**.
+- Vérifier que :
+    - **user2** peut modifier son contenu.
+    - **/projet1/user1c.txt** a bien des ACL de configurées (commande `ls -l`)
+    - en utilisant la commande `getfacl /projet1/user1c.txt` a bien les ACL par défaut configurées sur le dossier parent (ici /projet1)
+
+- Il n'y a pas de vérification pour cette partie.
 
 ## Vérification
 
