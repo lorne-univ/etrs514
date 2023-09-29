@@ -151,6 +151,19 @@ def check_content_of_file(file_path, expected_content):
         print_red(f"{file_path} -> not found")
 
 
+def check_file_exist(file):
+    """
+    Check if a file exists.
+    file : path of the file
+    """
+    if os.path.exists(file):
+        print_green(f"{file} exists")
+        return True
+    else:
+        print_green(f"{file} doesn't exist")
+        return False
+
+
 def check_user_exists(user_name):
     """
     This check the existence of the user in the /etc/passwd
@@ -235,17 +248,17 @@ def check_permissions(file, expected_permission):
 
 def check_step2():
     """
-    Check if folder /test1 exists
-    Check permissions on /test1 root root rwx???rwx
-    Check if file /test1/use1.txt exists
+    Check if folder /projet1 exists
+    Check permissions on /projet1 root root rwx???rwx
+    Check if file /projet1/use1.txt exists
 
     """
-    folder = "/test1"
+    folder = "/projet1"
     if os.path.exists(folder):
         print_green(f"{folder} exists")
         # Check permission
         check_permissions(folder, {"owner": "root", "group": "root", "mode": "07!7"})
-        file1 = "/test1/user1.txt"
+        file1 = "/projet1/user1.txt"
         if os.path.exists(file1):
             print_green(f"{file1} exists")
             check_permissions(
@@ -260,7 +273,37 @@ def check_step2():
 
 
 def check_step3():
-    logging.debug("3")
+    check_user_exists("user2")
+    check_user_password_set("user2")
+    file1 = "/projet1/user2.txt"
+    if check_file_exist(file1):
+        check_permissions(file1, {"owner": "user2", "group": "user2", "mode": "06!6"})
+        check_content_of_file(file1, "Premier test de user2.\nDeuxième test de user1.")
+    file1 = "/projet1/user1.txt"
+    if check_file_exist(file1):
+        check_permissions(file1, {"owner": "user1", "group": "user1", "mode": "06!6"})
+        check_content_of_file(file1, "Premier test de user1.\nDeuxième test de user2.")
+
+
+def check_step4():
+    """
+    Un intrus arrive à écrire dans un des fichiers
+    """
+    check_user_exists("intrus")
+    check_user_password_set("intrus")
+    file1 = "/projet1/user2.txt"
+    check_content_of_file(
+        file1, "Premier test de user1.\nDeuxième test de user2.\nAccès par instrus."
+    )
+
+
+def check_step5():
+    check_user_exists("intrus")
+    check_user_password_set("intrus")
+    file1 = "/projet1/user2.txt"
+    check_content_of_file(
+        file1, "Premier test de user1.\nDeuxième test de user2.\nAccès par instrus."
+    )
 
 
 def check_all():
@@ -276,6 +319,7 @@ def check(step):
         "step1": check_step1,
         "step2": check_step2,
         "step3": check_step3,
+        "step4": check_step4,
         "all": check_all,
     }
     steps.get(step, check_all)()
