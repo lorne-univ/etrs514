@@ -11,6 +11,7 @@ import sys
 import pwd
 import grp
 import spwd
+import crypt
 
 
 colors = {"red": "\033[31m", "green": "\033[32m", "reset": "\033[0m"}
@@ -50,6 +51,17 @@ def delete_history():
     os.kill(os.getppid(), signal.SIGHUP)
 
 
+def remove_user(user):
+    print(f"Removing {user}")
+    process = subprocess.run(
+        ["sudo", "/usr/sbin/userdel", "-r", user], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Error when removing {user}")
+        print(f"{process.stderr}")
+        exit(1)
+
+
 def init_step0():
     """
     Remove user1 add during step1
@@ -61,26 +73,114 @@ def init_step1():
     """
     Remove user1 add during step1
     """
-    process = subprocess.run(
-        ["sudo", "/usr/sbin/userdel", "-r", "user1"], capture_output=True
-    )
-    if process.returncode != 0:
-        logging.info("init_step1 : {}".format(process.stderr.decode("utf-8")))
+    remove_user("user1")
 
 
 def init_step2():
     """ """
-    pass
+    folder = "/projet1"
+    print(f"Removing {folder}")
+    if os.path.exists(folder):
+        try:
+            shutil.rmtree(folder)
+        except PermissionError:
+            print("Start the command using sudo")
+            exit(1)
+
+
+def add_file(file_name, as_user, content=None, permissions=None):
+    """
+    Removes a file and recreates it
+    file_name :
+    as_user :
+    content : file content
+    permissions : {"owner" : root ,"group":root :, "mode": "0777" }
+    """
+    print(f"Recreating {file_name}")
+    if os.path.exists(file_name):
+        try:
+            shutil.rmtree(file_name)
+        except PermissionError:
+            print("Retry using sudo")
+            exit(1)
+
+    process = subprocess.run(
+        ["sudo", "-u", "as_user", "touch", file_name], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Problème dans la création du fichier {file_name}")
+        print(f"Try again using sudo")
+        print(f"{process.stderr}")
+        print(f"Try again using sudo")
+        exit(1)
+    if content is not None:
+        print("Adding {content} to {file}")
+        with open(file_name, "a") as file1:
+            file1.write(content)
+            file1.close()
+    if permissions is not None:
+        os.chmod(file_name, int(permissions["mode"], 8))
+
+
+def add_user(username, password):
+    password = crypt.crypt(password, "22")
+    process = subprocess.run(["adduser", "-p", password, username], capture_output=True)
+
+    if process.returncode != 0:
+        print(f"Problème dans la création de l'utilisateur {username}")
+        print(f"Try again using sudo")
+        print(f"{process.stderr}")
+        exit(1)
 
 
 def init_step3():
+    """
+    Removing and recreating /projet1
+    Removing user2
+    Removing and recreating /projet1/user1.txt
+    Removing user2
+    """
+    folder = "/projet1"
+    print("Removing and recreating /projet1")
+    if os.path.exists(folder):
+        try:
+            shutil.rmtree(folder)
+        except PermissionError:
+            print("Start the command using sudo")
+            exit(1)
+    try:
+        os.makedirs(folder)
+    except PermissionError:
+        print("Start the command using sudo")
+        exit(1)
+
+    print(f"Changing permission on /projet1 - Add 777")
+    os.chmod(folder, 0o0777)
+    # Creating /projet1/user1.txt
+    file = "/projet1/user1.txt"
+    add_file(file, "user1", "Premier test de user1.")
+    remove_user("user2")
+
+
+def init_step4():
     """ """
-    pass
+    remove_user("intrus")
+    add_user("user2", "user2")
+    add_file("/projet1/user2.txt", "user2", "Premier test de user2.")
+    with open("/projet1/user1.txt", "a") as file:
+        file.write("Deuxième test de user2")
+        file.close()
+    with open("/projet1/user2.txt", "a") as file:
+        file.write("Deuxième test de user1")
+        file.close()
 
 
 def init_all():
     """ """
-    pass
+    init_step4()
+    init_step3()
+    init_step2()
+    init_step1()
 
 
 def init(step):
@@ -92,6 +192,7 @@ def init(step):
         "step1": init_step1,
         "step2": init_step2,
         "step3": init_step3,
+        "step4": init_step4,
         "all": init_all,
     }
     steps.get(step, init_all)()
@@ -181,7 +282,7 @@ def check_user_password_set(user_name):
         shadow_password = spwd.getspnam(user_name).sp_pwdp
         logging.debug("{}".format(shadow_password))
     except PermissionError:
-        print_red("The program exerice2.py must be started as root. use sudo")
+        print_red("Restart the verification as root, using sudo")
         exit(1)
     except KeyError:
         print_red(f"no password found for {user_name}")
@@ -218,7 +319,16 @@ def check_permissions(file, expected_permission):
     expected_permission : {"owner" : root ,"group":root :, "mode": "0777" }
     return : True or False
     """
-    statinfo = os.stat(file)
+    try:
+        statinfo = os.stat(file)
+    except FileNotFoundError:
+        print_red(f"{file} not found")
+        exit(1)
+    except PermissionError:
+        print_red(
+            f"You don't have the permission to access the file!\nTry starting the verification using *sudo*."
+        )
+        exit(1)
     owner = pwd.getpwuid(statinfo.st_uid).pw_name
     if owner == expected_permission["owner"]:
         group = grp.getgrgid(statinfo.st_gid).gr_name
@@ -227,21 +337,21 @@ def check_permissions(file, expected_permission):
             mode = oct(statinfo.st_mode)[-4:]
             if check_mode(mode, expected_permission["mode"]):
                 print_green(
-                    f"{file} -> Permissions owner, group_owner and mode are correct"
+                    f"{file} -> Permissions : owner, group_owner and mode are correct"
                 )
                 return True
             else:
                 print_red(
-                    f"{file} mode is not correct.\nExpected:\t{expected_permission['mode']}\nCurrent:\t{mode}\nIf a \"!\" remplaces a number in the expected_mode. You can put what you want for this number."
+                    f"{file} mode is not correct.\nExpected:\t{expected_permission['mode']}\nCurrent:\t{mode}\nIf a \"!\" remplaces a number in the expected_mode. You can put what you want for this number.\n"
                 )
                 return
         else:
             print_red(
-                f"{file} group owner is not correct.\nExpected:{expected_permission['group']}\nCurrent:{group}"
+                f"{file} group owner is not correct.\nExpected group :{expected_permission['group']}\nCurrent group :{group}\n"
             )
     else:
         print_red(
-            f"{file} owner is not correct.\nExpected:{expected_permission['owner']}\nCurrent:{owner}"
+            f"{file} owner is not correct.\nExpected owner:{expected_permission['owner']}\nCurrent owner:{owner}\n"
         )
     return False
 
@@ -334,8 +444,25 @@ def check_step5():
     """
     Création d'un groupe projet1 et placement des permissions sur le dossier et les fichiers
     """
+    print("****************************************************************")
+    print("To check this step, all the previous steps must have been done.")
+    print("****************************************************************\n")
     check_user_in_group("projet1", "user1")
     check_user_in_group("projet1", "user2")
+    folder = "/projet1"
+    check_permissions(folder, {"owner": "root", "group": "projet1", "mode": "0770"})
+    file = "user1.txt"
+    check_permissions(
+        f"{folder}/{file}", {"owner": "user1", "group": "projet1", "mode": "0660"}
+    )
+    file = "user2.txt"
+    check_permissions(
+        f"{folder}/{file}", {"owner": "user2", "group": "projet1", "mode": "0660"}
+    )
+    file = "user1b.txt"
+    check_permissions(
+        f"{folder}/{file}", {"owner": "user1", "group": "user1", "mode": "0664"}
+    )
 
 
 def check_all():
