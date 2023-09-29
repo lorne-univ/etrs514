@@ -43,19 +43,19 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1
 
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
 
- - En tant qu'utilisateur root, créer un dossier **/test1**
- - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 test1`.
+ - En tant qu'utilisateur root, créer un dossier **/projet1**
+ - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 projet1`.
  > Vous devez être capable de répondre à une question du type : "A quoi sert la permission x sur un dossier ?"
- - En tant qu'utilisateur **user1**, essayer de créer un fichier **/test1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
- - Modifier les permissions pour que tous les utilisateurs du système aient la permission d'écrire dans le dossier **/test1**.
- - Après la modification des permissions le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 test1`
- - En tant qu'utilisateur **user1**, essayer de créer un fichier **/test1/user1.txt**. Ca doit fonctionner.
+ - En tant qu'utilisateur **user1**, essayer de créer un fichier **/projet1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
+ - Modifier les permissions pour que tous les utilisateurs du système aient la permission d'écrire dans le dossier **/projet1**.
+ - Après la modification des permissions le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 projet1`
+ - En tant qu'utilisateur **user1**, essayer de créer un fichier **/projet1/user1.txt**. Ca doit fonctionner.
  - Ecrire dans le fichier : `Premier test de user1.`
  - Vérifier votre travail en utilisant le script de vérification :
 ```
 sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
 ```
- - Noter les permissions sur le fichier **/test1/user1.txt**.
+ - Noter les permissions sur le fichier **/projet1/user1.txt**.
     - Propriétaire : user1
     - Groupe propriétaire : user1
     - mode : 0644
@@ -63,14 +63,14 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
 ### Etape 3 : Essai de partage en local de fichiers/dossiers entre utilisateurs
 
 - Créer un deuxième utilisateur **user2** mot de passe **user2**
-- En tant que **user2** créer un fichier **/test1/user2.txt** contenant la ligne suivante **Premier test de user2.**.
+- En tant que **user2** créer un fichier **/projet1/user2.txt** contenant la ligne suivante **Premier test de user2.**.
 - Relever les permissions sur **user2** et vérifier qu'elles correspondent bien à celles que vous vous attendiez d'avoir.
-> On voit, comme ça a été dit en cours, qu'il n'y a pas d'héritage des permissions. Les permissions sont différentes de celles du dossier parent (/test1)
-- Essayer de rajouter la ligne `Premier test de user2.` à la suite dans le fichier **/test1/user1.txt**. Vous ne devriez pas y arriver.
-- En tant que **user1**, modifier les permissions sur le fichier **/test1/user1.txt** pour faire en sorte que **user2** puisse le modifier.
-- En tant que **user2**, rajouter la ligne `Deuxième test de user2.` dans le fichier **/test1/user1.txt**.
-- Modifer les permissions du fichier **/test1/user2.txt** de telle sorte que **user1** puisse le modifier.
-- En tant que **user1** ajouter la ligne `Deuxième test de user1.` dans le fichier **/test1/user2.txt**.
+> On voit, comme ça a été dit en cours, qu'il n'y a pas d'héritage des permissions. Les permissions sont différentes de celles du dossier parent (/projet1)
+- Essayer de rajouter la ligne `Premier test de user2.` à la suite dans le fichier **/projet1/user1.txt**. Vous ne devriez pas y arriver.
+- En tant que **user1**, modifier les permissions sur le fichier **/projet1/user1.txt** pour faire en sorte que **user2** puisse le modifier.
+- En tant que **user2**, rajouter la ligne `Deuxième test de user2.` dans le fichier **/projet1/user1.txt**.
+- Modifer les permissions du fichier **/projet1/user2.txt** de telle sorte que **user1** puisse le modifier.
+- En tant que **user1** ajouter la ligne `Deuxième test de user1.` dans le fichier **/projet1/user2.txt**.
 
 - Vérifier votre travail en utilisant le script de vérification :
 ```
@@ -80,8 +80,8 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step3
 ### Etape 4 : Test avec un intrus
 
 - Créer un utilisateur **intrus** mot de passe **intrus**.
-- Vérifier que **intrus** peut accéder (lire et modifier) les fichiers dans le dossier **/test1**.
-- Rajouter en tant qu'intrus une ligne `Accès par intrus.` dans le fichier **/test1/user2.txt**.
+- Vérifier que **intrus** peut accéder (lire et modifier) les fichiers dans le dossier **/projet1**.
+- Rajouter en tant qu'intrus une ligne `Accès par intrus.` dans le fichier **/projet1/user2.txt**.
 - Vérifier votre travail en utilisant le script de vérification :
 
 ```
@@ -94,7 +94,36 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step4
 
 
 ### Etape 5 : Création d'un groupe projet1 et affectation des permissions au groupe.
-Pour apporter da la sécurité au partage, il est pertinent de placer les utilsateurs devant avoir  dans un groupe.
+Pour apporter da la sécurité au partage, il est nécessaire de :
+- placer les utilsateurs devant avoir à un dossier commun dans un groupe. 
+- de spécifier dans les permissions du dossier les possibilités pour le groupe.
+
+- Créer un groupe nommé **projet1**.
+- Faire en sorte que les utilisateurs **user1** et **user2** appartiennent à ce groupe comme groupe secondaire.
+- Modifier, de manière récursive, le groupe d'appartenance pour le dossier **/projet1** et tous les sous-fichiers et sous-dossiers.
+- Modifier, de manière récursive, les permissions sur le le dossier **/projet1** pour et tous les sous-fichiers et sous-dossiers
+    - Propriétaire : (non changé) -> rwx (sur les dossiers), rw (sur les fichiers)
+    - Groupe propriétaire : projet1 -> rwx (sur les dossiers), rw (sur les fichiers)
+    - Autres utilisateurs : -> ---
+- Se loguer en tant qu'intrus, vérifier qu'il n'a maintenant plus accès aux fichiers dans **/projet1**.
+- Créer en tant que **user1** un nouveau fichier nommé **/projet1/user1b.txt**.
+- Visualiser les permissions sur ce fichier, vous devriez avoir `-rw-rw-r--. 1 user1 user1    0 29 sept. 10:46 user1b.txt`
+- Les permissions ne sont pas "idéales" :
+    - On a la permission *r--* pour les *autres*. Vérifier que **intrus** ne peut pas lire le contenu du fichier, il ne peut pas car il n'a pas la permission sur le dossier **projet1**. La permission *r--* pour les autres utilisateurs n'est pas problématique.
+    - Le dossier a comme groupre propriétaire *user1*. Essayer, en tant que **user2** de modifier contenu du fichier. **user2** ne peut pas modifier le fichier crée par **user1** alors qu'ils travaillent tous les deux sur le même projet. Ce n'est pas cohérent !!! Encore une fois c'est dû au fait que le système de gestion de fichiers Posix n'implémente pas d'héritage. Il aurait été pertinent que les fichiers créés dans **/projet1** aient comme groupe propriétaire **projet1**.
+Plusieurs solutions existent à ce problème : 
+- L'utilisateur change les permissions à chaque fois qu'il crée un fichier. Solution non viable.
+- Un programme change les permissions automatiquement à chaque fois qu'un nouveau fichier est créé.
+- Utilisation du SGID.
+- Utilisation des ACL (façon actuelle et recommandée).
+
+
+- Vérifier votre travail en utilisant le script de vérification :
+
+```
+sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step5
+```
+
 
 ## Vérification
 
