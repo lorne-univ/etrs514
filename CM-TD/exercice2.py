@@ -246,6 +246,36 @@ def check_permissions(file, expected_permission):
     return False
 
 
+def check_group_exists(group_name):
+    """
+    Check if a group exists
+    """
+    try:
+        grp.getgrnam(group_name)
+        print_green(f"{group_name} exists.")
+    except KeyError:
+        print_red(f"{group_name} doesn't exist.")
+        exit(1)
+
+
+def check_user_in_group(group_name, user):
+    """
+    Test if user belongs to a posix group
+    Return True or False
+    """
+    try:
+        group_infos = grp.getgrnam(group_name)
+        if user in group_infos.gr_mem:
+            print_green(f"{user} in group {group_name}.")
+            return True
+        else:
+            print_red(f"{user} not in group {group_name}.")
+            return False
+    except KeyError:
+        print_red(f"{group_name} doesn't exist.")
+        exit(1)
+
+
 def check_step2():
     """
     Check if folder /projet1 exists
@@ -273,6 +303,9 @@ def check_step2():
 
 
 def check_step3():
+    """
+    Essai de partage en local de fichiers ou de dossiers
+    """
     check_user_exists("user2")
     check_user_password_set("user2")
     file1 = "/projet1/user2.txt"
@@ -298,12 +331,11 @@ def check_step4():
 
 
 def check_step5():
-    check_user_exists("intrus")
-    check_user_password_set("intrus")
-    file1 = "/projet1/user2.txt"
-    check_content_of_file(
-        file1, "Premier test de user1.\nDeuxième test de user2.\nAccès par instrus."
-    )
+    """
+    Création d'un groupe projet1 et placement des permissions sur le dossier et les fichiers
+    """
+    check_user_in_group("projet1", "user1")
+    check_user_in_group("projet1", "user2")
 
 
 def check_all():
@@ -320,6 +352,7 @@ def check(step):
         "step2": check_step2,
         "step3": check_step3,
         "step4": check_step4,
+        "step5": check_step5,
         "all": check_all,
     }
     steps.get(step, check_all)()
