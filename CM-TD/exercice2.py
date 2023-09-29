@@ -66,7 +66,7 @@ def init_step0():
     """
     Remove user1 add during step1
     """
-    pass
+    print("Nothing to do")
 
 
 def init_step1():
