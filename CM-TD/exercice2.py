@@ -51,15 +51,89 @@ def delete_history():
     os.kill(os.getppid(), signal.SIGHUP)
 
 
-def remove_user(user):
-    print(f"Removing {user}")
+def remove_user(username):
+    """
+    Delete/remove a user from the system
+    user : user name
+    """
+    print(f"Removing {username}")
     process = subprocess.run(
-        ["sudo", "/usr/sbin/userdel", "-r", user], capture_output=True
+        ["sudo", "/usr/sbin/userdel", "-r", username], capture_output=True
     )
     if process.returncode != 0:
-        print(f"Error when removing {user}")
-        print(f"{process.stderr}")
+        print(f"Error when removing {username}")
+        print(f"remove_user {username} stderr :{process.stderr}")
+
+
+def remove_grp(group_name):
+    """
+    Remove the group named grp
+    grp_name : group_name
+    """
+    print(f"Removing {group_name}")
+    process = subprocess.run(
+        ["sudo", "/usr/sbin/groupdel", group_name], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Error when removing {group_name}")
+        print(f"remove_grp {group_name} stderr : {process.stderr}")
+
+
+def add_file(file_name, as_user, content=None, permissions=None):
+    """
+    Removes a file and recreates it
+    file_name :
+    as_user :
+    content : file content ["", ""]
+    permissions : {"owner" : root ,"group":root :, "mode": "0777" }
+    """
+    print(f"Recreating {file_name}")
+    if os.path.exists(file_name):
+        try:
+            os.remove(file_name)
+        except PermissionError:
+            print("Permission Error, retry using sudo")
+            exit(1)
+
+    process = subprocess.run(
+        ["sudo", "-u", as_user, "touch", file_name], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Problème dans la création du fichier {file_name}")
+        print(f"Try again using sudo")
+        print(f"add_file {file_name} stderr : {process.stderr}")
+        print(f"Try again using sudo")
         exit(1)
+    if content is not None:
+        print(f"Adding {content} to {file_name}")
+        with open(file_name, "a") as file1:
+            file1.writelines(content)
+            file1.close()
+    if permissions is not None:
+        os.chmod(file_name, int(permissions["mode"], 8))
+
+
+def add_user(username, password):
+    print(f"Adding user : {username} with password : {password}")
+    password = crypt.crypt(password, "22")
+    process = subprocess.run(["adduser", "-p", password, username], capture_output=True)
+
+    if process.returncode != 0:
+        if "already exists" in process.stderr.decode("utf-8"):
+            print(f"{username} already exists")
+        else:
+            print(f"Problème dans la création de l'utilisateur {username}")
+            print(f"add_user {username} stderr : {process.stderr}")
+            print(f"Try again using sudo")
+
+
+def remove_user_from_all_group(username):
+    process = subprocess.run(["usermod", "-G", '""', username], capture_output=True)
+
+    if process.returncode != 0:
+        print(f"Error when reinit group for user {username}")
+        print(f"remove_user_from_all_group {username} stderr : {process.stderr}")
+        print(f"Try again using sudo")
 
 
 def init_step0():
@@ -86,51 +160,7 @@ def init_step2():
         except PermissionError:
             print("Start the command using sudo")
             exit(1)
-
-
-def add_file(file_name, as_user, content=None, permissions=None):
-    """
-    Removes a file and recreates it
-    file_name :
-    as_user :
-    content : file content
-    permissions : {"owner" : root ,"group":root :, "mode": "0777" }
-    """
-    print(f"Recreating {file_name}")
-    if os.path.exists(file_name):
-        try:
-            shutil.rmtree(file_name)
-        except PermissionError:
-            print("Retry using sudo")
-            exit(1)
-
-    process = subprocess.run(
-        ["sudo", "-u", "as_user", "touch", file_name], capture_output=True
-    )
-    if process.returncode != 0:
-        print(f"Problème dans la création du fichier {file_name}")
-        print(f"Try again using sudo")
-        print(f"{process.stderr}")
-        print(f"Try again using sudo")
-        exit(1)
-    if content is not None:
-        print("Adding {content} to {file}")
-        with open(file_name, "a") as file1:
-            file1.write(content)
-            file1.close()
-    if permissions is not None:
-        os.chmod(file_name, int(permissions["mode"], 8))
-
-
-def add_user(username, password):
-    password = crypt.crypt(password, "22")
-    process = subprocess.run(["adduser", "-p", password, username], capture_output=True)
-
-    if process.returncode != 0:
-        print(f"Problème dans la création de l'utilisateur {username}")
-        print(f"Try again using sudo")
-        print(f"{process.stderr}")
-        exit(1)
+    add_user("user1", "user1")
 
 
 def init_step3():
@@ -166,13 +196,39 @@ def init_step4():
     """ """
     remove_user("intrus")
     add_user("user2", "user2")
-    add_file("/projet1/user2.txt", "user2", "Premier test de user2.")
-    with open("/projet1/user1.txt", "a") as file:
-        file.write("Deuxième test de user2")
-        file.close()
-    with open("/projet1/user2.txt", "a") as file:
-        file.write("Deuxième test de user1")
-        file.close()
+    add_file(
+        "/projet1/user2.txt",
+        "user2",
+        ["Premier test de user2.\n", "Deuxième test de user1."],
+        {"owner": "user2", "group": "user2", "mode": "0646"},
+    )
+    add_file(
+        "/projet1/user1.txt",
+        "user1",
+        ["Premier test de user1.\n", "Deuxième test de user2."],
+        {"owner": "user1", "group": "user1", "mode": "0646"},
+    )
+
+
+def init_step5():
+    """ """
+    remove_user("intrus")
+    add_user("user2", "user2")
+    add_file(
+        "/projet1/user2.txt",
+        "user2",
+        ["Premier test de user2.\n", "Deuxième test de user1."],
+        {"owner": "user2", "group": "user2", "mode": "0646"},
+    )
+    add_file(
+        "/projet1/user1.txt",
+        "user1",
+        ["Premier test de user1.\n", "Deuxième test de user2."],
+        {"owner": "user1", "group": "user1", "mode": "0646"},
+    )
+    remove_grp("projet1")
+    remove_user_from_all_group("user1")
+    remove_user_from_all_group("user2")
 
 
 def init_all():
@@ -261,36 +317,36 @@ def check_file_exist(file):
         print_green(f"{file} exists")
         return True
     else:
-        print_green(f"{file} doesn't exist")
+        print_red(f"{file} doesn't exist")
         return False
 
 
-def check_user_exists(user_name):
+def check_user_exists(username):
     """
     This check the existence of the user in the /etc/passwd
     """
     try:
-        pwd.getpwnam(user_name)
+        pwd.getpwnam(username)
     except KeyError:
-        print_red(f"{user_name} doesn't exists")
+        print_red(f"{username} doesn't exists")
         exit(1)
-    print_green(f"{user_name} exists")
+    print_green(f"{username} exists")
 
 
-def check_user_password_set(user_name):
+def check_user_password_set(username):
     try:
-        shadow_password = spwd.getspnam(user_name).sp_pwdp
+        shadow_password = spwd.getspnam(username).sp_pwdp
         logging.debug("{}".format(shadow_password))
     except PermissionError:
         print_red("Restart the verification as root, using sudo")
         exit(1)
     except KeyError:
-        print_red(f"no password found for {user_name}")
+        print_red(f"no password found for {username}")
         exit(1)
     if shadow_password != "!!":
-        print_green(f"{user_name} has a password")
+        print_green(f"{username} has a password")
     else:
-        print_red(f"no password found for {user_name}")
+        print_red(f"no password found for {username}")
         exit(1)
 
 
