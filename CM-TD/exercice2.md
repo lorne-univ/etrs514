@@ -11,11 +11,13 @@ git pull
 
 ## Initialisation
 
-Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.py init --step step0`
-> Si vous voulez recommencer l'exercice, vous pouvez exécuter à nouveau cette commande pour repartir d'un environnement "vierge"
+Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.py init --step all`
+> Si vous voulez recommencer **complètement** l'exercice, vous pouvez exécuter à nouveau cette commande pour repartir d'un environnement "vierge"
 
 
 ### Etape 1 : Création d'un utilisateur
+
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1`.
 
 - Créer l'utilisateur **user1** et affecter lui le mot de passe **user1**.
 - Vérifier :
@@ -43,6 +45,8 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1
 
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
 
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step2`.
+
  - En tant qu'utilisateur root, créer un dossier **/projet1**
  - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 projet1`.
  > Vous devez être capable de répondre à une question du type : "A quoi sert la permission x sur un dossier ?"
@@ -62,6 +66,8 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
 
 ### Etape 3 : Essai de partage en local de fichiers/dossiers entre utilisateurs
 
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step3`.
+
 - Créer un deuxième utilisateur **user2** mot de passe **user2**
 - En tant que **user2** créer un fichier **/projet1/user2.txt** contenant la ligne suivante **Premier test de user2.**.
 - Relever les permissions sur **user2** et vérifier qu'elles correspondent bien à celles que vous vous attendiez d'avoir.
@@ -79,6 +85,8 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step3
 
 ### Etape 4 : Test avec un intrus
 
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step4`.
+
 - Créer un utilisateur **intrus** mot de passe **intrus**.
 - Vérifier que **intrus** peut accéder (lire et modifier) les fichiers dans le dossier **/projet1**.
 - Rajouter en tant qu'intrus une ligne `Accès par intrus.` dans le fichier **/projet1/user2.txt**.
@@ -94,9 +102,12 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step4
 
 
 ### Etape 5 : Création d'un groupe projet1 et affectation des permissions au groupe.
-Pour apporter da la sécurité au partage, il est nécessaire de :
-- placer les utilsateurs devant avoir à un dossier commun dans un groupe. 
-- de spécifier dans les permissions du dossier les possibilités pour le groupe.
+
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step5`.
+
+Pour améliorer la sécurité du dossier partagé local, il est nécessaire de :
+- Placer les utilisateurs devant avoir à un dossier commun dans un groupe. 
+- Spécifier dans les permissions du dossier les permissions pour le groupe.
 
 - Créer un groupe nommé **projet1**.
 - Faire en sorte que les utilisateurs **user1** et **user2** appartiennent à ce groupe comme groupe secondaire.
@@ -124,8 +135,10 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step5
 ```
 
 ### Etape 6 : ACL et héritage
+
+
 La machine virtuelle mise à disposition fonctionne avec un système Linux supportant les ACL. *Attention* ce n'est pas le cas de tous les systèmes.
-On va donc mettre à profit cette possibilité pour configurer notre dossier /projet1.
+On va donc mettre à profit cette possibilité pour configurer le dossier **/projet1**.
 > On va mettre en place des acl par défaut.
 - Visualiser les acl actuelles `getfacl /projet1`.
 - Exécuter la commande `sudo  setfacl -d -m g:projet1:rwx,o::-- /projet1`. Cette commande fixe comme groupe par défaut **projet1** avec les permissions **rwx** et ne donne aucune permission aux autres utlisateurs.
