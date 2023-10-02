@@ -113,6 +113,19 @@ def add_file(file_name, as_user, content=None, permissions=None):
         os.chmod(file_name, int(permissions["mode"], 8))
 
 
+def remove_folder(folder):
+    """
+    Remove completely, folder, folder and subfile
+    """
+    print(f"Removing {folder}")
+    if os.path.exists(folder):
+        try:
+            shutil.rmtree(folder)
+        except PermissionError:
+            print(f"Error when removing {folder}")
+            print("Start the command using sudo")
+
+
 def add_user(username, password):
     print(f"Adding user : {username} with password : {password}")
     password = crypt.crypt(password, "22")
@@ -153,13 +166,7 @@ def init_step1():
 def init_step2():
     """ """
     folder = "/projet1"
-    print(f"Removing {folder}")
-    if os.path.exists(folder):
-        try:
-            shutil.rmtree(folder)
-        except PermissionError:
-            print("Start the command using sudo")
-            exit(1)
+    remove_folder(folder)
     add_user("user1", "user1")
 
 
@@ -233,11 +240,10 @@ def init_step5():
 
 def init_all():
     """ """
-
-    init_step4()
-    init_step3()
-    init_step2()
-    init_step1()
+    remove_user("intrus")
+    remove_user("user1")
+    remove_user("user2")
+    remove_grp("projet1")
 
 
 def init(step):
