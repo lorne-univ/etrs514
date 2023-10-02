@@ -94,23 +94,40 @@ def add_file(file_name, as_user, content=None, permissions=None):
         except PermissionError:
             print("Permission Error, retry using sudo")
             exit(1)
-
-    process = subprocess.run(
-        ["sudo", "-u", as_user, "touch", file_name], capture_output=True
-    )
-    if process.returncode != 0:
-        print(f"Problème dans la création du fichier {file_name}")
-        print(f"Try again using sudo")
-        print(f"add_file {file_name} stderr : {process.stderr}")
-        print(f"Try again using sudo")
-        exit(1)
-    if content is not None:
-        print(f"Adding {content} to {file_name}")
-        with open(file_name, "a") as file1:
-            file1.writelines(content)
-            file1.close()
-    if permissions is not None:
-        os.chmod(file_name, int(permissions["mode"], 8))
+    if sys.version_info < (3, 9):
+        process = subprocess.run(
+            ["sudo", "-u", as_user, "touch", file_name], capture_output=True
+        )
+        if process.returncode != 0:
+            print(f"Problème dans la création du fichier {file_name}")
+            print(f"Try again using sudo")
+            print(f"add_file {file_name} stderr : {process.stderr}")
+            print(f"Try again using sudo")
+            exit(1)
+        if content is not None:
+            print(f"Adding {content} to {file_name}")
+            with open(file_name, "a") as file1:
+                file1.writelines(content)
+                file1.close()
+        if permissions is not None:
+            os.chmod(file_name, int(permissions["mode"], 8))
+    else:
+        process = subprocess.run(
+            ["touch", file_name], capture_output=True, user=as_user
+        )
+        if process.returncode != 0:
+            print(f"Error when creating file {file_name}")
+            print(f"Try again using sudo")
+            print(f"add_file {file_name} stderr : {process.stderr}")
+            print(f"Try again using sudo")
+            exit(1)
+        if content is not None:
+            print(f"Adding {content} to {file_name}")
+            with open(file_name, "a") as file1:
+                file1.writelines(content)
+                file1.close()
+        if permissions is not None:
+            os.chmod(file_name, int(permissions["mode"], 8))
 
 
 def remove_folder(folder):
@@ -179,12 +196,7 @@ def init_step3():
     """
     folder = "/projet1"
     print("Removing and recreating /projet1")
-    if os.path.exists(folder):
-        try:
-            shutil.rmtree(folder)
-        except PermissionError:
-            print("Start the command using sudo")
-            exit(1)
+    remove_folder(folder)
     try:
         os.makedirs(folder)
     except PermissionError:
@@ -220,7 +232,6 @@ def init_step4():
 def init_step5():
     """ """
     remove_user("intrus")
-    add_user("user2", "user2")
     add_file(
         "/projet1/user2.txt",
         "user2",
@@ -240,10 +251,16 @@ def init_step5():
 
 def init_all():
     """ """
-    remove_user("intrus")
-    remove_user("user1")
-    remove_user("user2")
-    remove_grp("projet1")
+    print("This will reinit all the exercice")
+    ans = input("Do you want to continuer ? Y/N")
+    if ans == "Y" or ans == "y":
+        remove_user("intrus")
+        remove_user("user1")
+        remove_user("user2")
+        remove_grp("projet1")
+        remove_folder("/projet1")
+    else:
+        exit(1)
 
 
 def init(step):
@@ -256,6 +273,7 @@ def init(step):
         "step2": init_step2,
         "step3": init_step3,
         "step4": init_step4,
+        "step5": init_step5,
         "all": init_all,
     }
     steps.get(step, init_all)()
