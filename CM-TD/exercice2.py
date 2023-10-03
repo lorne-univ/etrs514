@@ -79,7 +79,21 @@ def remove_grp(group_name):
         print(f"remove_grp {group_name} stderr : {process.stderr}")
 
 
-def add_line_to_file_as_user(file_name, line, as_user):
+def add_grp(group_name):
+    """
+    Remove the group named grp
+    grp_name : group_name
+    """
+    print(f"Add {group_name}")
+    process = subprocess.run(
+        ["sudo", "/usr/sbin/groupadd", group_name], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Error when adding group {group_name}")
+        print(f"add_grp {group_name} stderr : {process.stderr}")
+
+
+def add_line_to_file_as_user(file_name, line, as_user, as_group):
     """
     Add a line to a file as user
     line : the content you want to add at the end of the file
@@ -87,8 +101,11 @@ def add_line_to_file_as_user(file_name, line, as_user):
     """
     print(f"Try Write {line } in {file_name} as {as_user}")
     uid = pwd.getpwnam(as_user).pw_uid
+    gid = grp.getgrnam(as_group).gr_gid
     try:
-        os.setuid(uid)
+        logging.debug("Changing user uid")
+        os.setegid(gid)
+        os.seteuid(uid)
     except PermissionError:
         print("Start again the program using sudo.")
         return
@@ -96,9 +113,12 @@ def add_line_to_file_as_user(file_name, line, as_user):
         with open(file_name, "a") as file:
             file.write(f"{line}\n")
             file.close()
-    except PermissionError:
+    except PermissionError as p:
         print_red(f"{as_user} doesn't have the permission to write in {file_name}")
+        print(f"{p}")
+        return
     print_green(f"Successfull write in {file_name} as {as_user}.")
+    uid = pwd.getpwnam("etudiant").pw_uid
 
 
 def add_file(file_name, as_user, content=None, permissions=None):
@@ -116,45 +136,28 @@ def add_file(file_name, as_user, content=None, permissions=None):
         except PermissionError:
             print("Permission Error, retry using sudo")
             exit(1)
-    if sys.version_info < (3, 9):
-        process = subprocess.run(
-            ["sudo", "-u", as_user, "touch", file_name], capture_output=True
-        )
-        if process.returncode != 0:
-            print(f"Problème dans la création du fichier {file_name}")
-            print(f"Try again using sudo")
-            print(f"add_file {file_name} stderr : {process.stderr}")
-            print(f"Try again using sudo")
-            exit(1)
-        if content is not None:
-            print(f"Adding {content} to {file_name}")
-            with open(file_name, "a") as file1:
-                file1.writelines(content)
-                file1.close()
-        if permissions is not None:
-            os.chmod(file_name, int(permissions["mode"], 8))
-    else:
-        process = subprocess.run(
-            ["touch", file_name], capture_output=True, user=as_user
-        )
-        if process.returncode != 0:
-            print(f"Error when creating file {file_name}")
-            print(f"Try again using sudo")
-            print(f"add_file {file_name} stderr : {process.stderr}")
-            print(f"Try again using sudo")
-            exit(1)
-        if content is not None:
-            print(f"Adding {content} to {file_name}")
-            with open(file_name, "a") as file1:
-                file1.writelines(content)
-                file1.close()
-        if permissions is not None:
-            os.chmod(file_name, int(permissions["mode"], 8))
+
+    process = subprocess.run(
+        ["sudo", "-u", as_user, "touch", file_name], capture_output=True
+    )
+    if process.returncode != 0:
+        print(f"Problème dans la création du fichier {file_name}")
+        print(f"Try again using sudo")
+        print(f"add_file {file_name} stderr : {process.stderr}")
+        print(f"Try again using sudo")
+        exit(1)
+    if content is not None:
+        print(f"Adding {content} to {file_name}")
+        with open(file_name, "a") as file1:
+            file1.writelines(content)
+            file1.close()
+    if permissions is not None:
+        os.chmod(file_name, int(permissions["mode"], 8))
 
 
 def remove_folder(folder):
     """
-    Remove completely, folder, folder and subfile
+    Remove completely, folder, subfolder(s) and file(s)
     """
     print(f"Removing {folder}")
     if os.path.exists(folder):
@@ -180,12 +183,30 @@ def add_user(username, password):
 
 
 def remove_user_from_all_group(username):
+    """
+    Remove the user from all secondary group
+    """
     print(f"Remove user {username} from all secondary groups.")
     process = subprocess.run(["usermod", "-G", "", username], capture_output=True)
 
     if process.returncode != 0:
         print(f"Error when reinit group for user {username}")
         print(f"remove_user_from_all_group {username} stderr : {process.stderr}")
+        print(f"Try again using sudo")
+
+
+def add_user_to_group(username, group):
+    """
+    Add a user to a secondary group
+    usernane : the username
+    group : the group to which the user will be added
+    """
+    print(f"Add user {username} to secondary group {group}.")
+    process = subprocess.run(["usermod", "-aG", group, username], capture_output=True)
+
+    if process.returncode != 0:
+        print(f"Error adding {username} to group {group}")
+        print(f"add_user_to_group {username} stderr : {process.stderr}")
         print(f"Try again using sudo")
 
 
@@ -433,7 +454,9 @@ def init_step4():
 
 
 def init_step5():
-    """ """
+    """
+    Initialize step5
+    """
     remove_user("intrus")
     add_file(
         "/projet1/user2.txt",
@@ -450,6 +473,47 @@ def init_step5():
     remove_grp("projet1")
     remove_user_from_all_group("user1")
     remove_user_from_all_group("user2")
+
+
+def init_step6():
+    """
+    Initialize step6
+    """
+    add_user("intrus", "intrus")
+    folder = "/projet1"
+    print("Removing and recreating /projet1")
+    remove_folder(folder)
+    try:
+        os.makedirs(folder)
+    except PermissionError:
+        print("Start the command using sudo")
+        exit(1)
+    print(f"Changing permission on /projet1 - Add 770")
+    os.chmod(folder, 0o0770)
+    add_grp("projet1")
+    print(f"Changing group owner on /projet1 - projet1")
+    shutil.chown("/projet1", "root", "projet1")
+
+    add_user_to_group("user1", "projet1")
+    add_user_to_group("user2", "projet1")
+    add_file(
+        "/projet1/user2.txt",
+        "user2",
+        ["Premier test de user2.\n", "Deuxième test de user1."],
+        {"owner": "user2", "group": "user2", "mode": "0646"},
+    )
+    add_file(
+        "/projet1/user1.txt",
+        "user1",
+        ["Premier test de user1.\n", "Deuxième test de user2."],
+        {"owner": "user1", "group": "user1", "mode": "0646"},
+    )
+    add_file(
+        "/projet1/user1b.txt",
+        "user1",
+        "",
+        {"owner": "user1", "group": "user1", "mode": "0664"},
+    )
 
 
 def init_all():
@@ -477,6 +541,7 @@ def init(step):
         "step3": init_step3,
         "step4": init_step4,
         "step5": init_step5,
+        "step6": init_step6,
         "all": init_all,
     }
     steps.get(step, init_all)()
@@ -570,11 +635,18 @@ def check_step5():
 
 
 def check_step6():
-    add_line_to_file_as_user("/projet1/user1c.txt", "Test de user2", "user2")
+    file = "/projet1/user1c.txt"
+    if os.path.exists("/projet1/user1c.txt"):
+        check_permissions(file, {"owner": "user1", "group": "user1", "mode": "0660"})
+        add_line_to_file_as_user(
+            "/projet1/user1c.txt", "Test de user2", "user2", "projet1"
+        )
+    else:
+        print_red("You must create /projet1/user1c.txt as user1")
 
 
 def check_all():
-    logging.debug("all")
+    print("You must enter a step to check.")
 
 
 def check(step):

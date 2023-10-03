@@ -11,9 +11,7 @@ git pull
 
 ## Initialisation
 
-Avant de commencer l'exercice, exécuter la commande `~/etrs514/CM-TD/exercice2.py init --step all`
-> Si vous voulez recommencer **complètement** l'exercice, vous pouvez exécuter à nouveau cette commande pour repartir d'un environnement "vierge"
-
+Si vous avez déjà commencé l'exercice et que vous voulez le recommencer en partant d'un environnement "vierge",exécuter la commande `~/etrs514/CM-TD/exercice2.py init --step all`.
 
 ### Etape 1 : Création d'un utilisateur
 
@@ -120,7 +118,7 @@ Pour améliorer la sécurité du dossier partagé local, il est nécessaire de :
 - Créer en tant que **user1** un nouveau fichier nommé **/projet1/user1b.txt**.
 - Visualiser les permissions sur ce fichier, vous devriez avoir `-rw-rw-r--. 1 user1 user1    0 29 sept. 10:46 user1b.txt`
 - Les permissions ne sont pas "idéales" :
-    - On a la permission *r--* pour les *autres*. Vérifier que **intrus** ne peut pas lire le contenu du fichier, il ne peut pas car il n'a pas la permission sur le dossier **projet1**. La permission *r--* pour les autres utilisateurs n'est pas problématique.
+    - On a la permission *r--* pour les *autres*. Vérifier que **intrus** ne peut pas lire le contenu du fichier, il ne peut pas car il n'a pas la permission sur le dossier **projet1**. La permission *r--* sur le fichier pour les autres utilisateurs n'est pas problématique.
     - Le dossier a comme groupre propriétaire *user1*. Essayer, en tant que **user2** de modifier contenu du fichier. **user2** ne peut pas modifier le fichier crée par **user1** alors qu'ils travaillent tous les deux sur le même projet. Ce n'est pas cohérent !!! Encore une fois c'est dû au fait que le système de gestion de fichiers Posix n'implémente pas d'héritage. Il aurait été pertinent que les fichiers créés dans **/projet1** aient comme groupe propriétaire **projet1**.
 Plusieurs solutions existent à ce problème : 
 - L'utilisateur change les permissions à chaque fois qu'il crée un fichier. Solution non viable.
@@ -144,12 +142,14 @@ On va donc mettre à profit cette possibilité pour configurer le dossier **/pro
 - Exécuter la commande `sudo  setfacl -d -m g:projet1:rwx,o::-- /projet1`. Cette commande fixe comme groupe par défaut **projet1** avec les permissions **rwx** et ne donne aucune permission aux autres utlisateurs.
 - Exécuter la commande `ls -l /` noter le **+** qui apparaît à la fin de la ligne correspondant aux permissions projet1 `drwxrwx---+   2 root projet1   94 29 sept. 11:23 projet1`. Ce **+** indique que des ACL ont été positionnées sur le fichier. Il faut utiliser la commande `getfacl` pour connaitre les véritables permissions sur le fichier.
 - En tant que **user1** créer un fichier **/projet1/user1c.txt**.
-- Vérifier que :
-    - **user2** peut modifier son contenu.
-    - **/projet1/user1c.txt** a bien des ACL de configurées (commande `ls -l`)
-    - en utilisant la commande `getfacl /projet1/user1c.txt` a bien les ACL par défaut configurées sur le dossier parent (ici /projet1)
+- Vérifications :
+    - Vérifier que **user2** peut modifier le contenu du fichier **user1c.txt**.
+    - Vérifier que **/projet1/user1c.txt** a bien des ACL de configurées (commande `ls -l`)
+    - Vérifier, en utilisant la commande `getfacl /projet1/user1c.txt` que **user1c.txt** a bien les mêmes ACL par défaut que celles configurées sur le dossier parent (ici /projet1)
 
-- Il n'y a pas de vérification pour cette partie.
+```
+sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step6
+```
 
 ## Vérification
 
