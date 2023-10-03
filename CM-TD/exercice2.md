@@ -2,7 +2,8 @@
 
 > Retrouver une version plus facilement lisible de ce document ici : https://github.com/lorne-univ/etrs514/blob/main/CM-TD/exercice2.md
 
-Dans cet exercice vous allez créer des utilisateur et des groupes
+Dans cet exercice vous allez mettre en place des permissions sur des fichiers et dossiers pour un groupe d'utilisateurs travaillant sur le même projet.
+
 Avant de commencer, vérifier que vous avez bien la dernière version des fichiers d'énoncé et de validation: 
 ```
 cd ~/etrs514
