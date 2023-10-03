@@ -33,22 +33,21 @@ On va voir que lorsqu'un processus est exécuté, il est bien associé à l'util
 - Vérifier que vous voyez bien une ligne `user1      38295  0.0  0.1 220956  1024 pts/8    S+   15:48   0:00 sleep 500`
 
 On va maintenant vérifier à quel(s) groupe(s) appartient l'utilisateur nouvellement créé.
-- Visualiser le contenu du fichier présent dans /etc, contenant la liste des groupes et pour chaque groupe donnant les utilisateurs qui sont associés.
+- Visualiser le contenu du fichier présent dans */etc*, contenant la liste des groupes et, qui pour chaque groupe donnant les utilisateurs qui lui sont associés.
 - Vérifier que ce fichier contient une ligne ressemblant à `user1:x:1002:`
-> On note que l'utilisateur user1 n'est pas noté comme appartenant au groupe user1. C'est normal, lorsque le groupe est le groupe primaire d'un utlisateur, l'utilisateur n'apparaît pas.
-- En utilisant la commande `id -gn` vérifier que user1 est bien le groupe primaire de user1.
-- Pour réinitialiser cette étape : 
-```
-sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1
-```
+> Normalement après les derniers **:**, il y a la liste de tous les utilisateurs qui appartiennent à un groupe. On note que l'utilisateur **user1** n'est pas noté comme appartenant au groupe **user1**. Ca peut paraître bizarre à première vue, mais c'est normal, lorsque le groupe est le groupe primaire d'un utilisateur, l'utilisateur n'apparaît pas dans la liste.
+- En utilisant la commande `id -gn` vérifier que **user1** est bien le groupe primaire de **user1**.
+
+- Il n'y a rien à vérifier pour cette étape.
+
 
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step2`.
 
  - En tant qu'utilisateur root, créer un dossier **/projet1**
- - Le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 projet1`.
- > Vous devez être capable de répondre à une question du type : "A quoi sert la permission x sur un dossier ?"
+ - Le résultat de la commande `ls -l /` doit contenir une ligne ressemblant à la suivante : `drwxr-xr-x.   2 root root    6 23 sept. 16:26 projet1`.
+ > Note : vous devez être capable de répondre à une question du type : "A quoi sert la permission x sur un dossier ?"
  - En tant qu'utilisateur **user1**, essayer de créer un fichier **/projet1/user1.txt**. Vous devriez obtenir un message ` Permission non accordée`.
  - Modifier les permissions pour que tous les utilisateurs du système aient la permission d'écrire dans le dossier **/projet1**.
  - Après la modification des permissions le résultat de la commande `ls -l /` doit avoir une ligne ressemblant à la suivante : `drwxrwxrwx.   2 root root    6 23 sept. 16:26 projet1`
@@ -115,7 +114,7 @@ Pour améliorer la sécurité du dossier partagé local, il est nécessaire de :
     - Propriétaire : (non changé) -> rwx (sur les dossiers), rw (sur les fichiers)
     - Groupe propriétaire : projet1 -> rwx (sur les dossiers), rw (sur les fichiers)
     - Autres utilisateurs : -> ---
-- Se loguer en tant qu'intrus, vérifier qu'il n'a maintenant plus accès aux fichiers dans **/projet1**.
+- Se loguer en tant qu'**intrus**, vérifier qu'il n'a maintenant plus accès aux fichiers dans **/projet1**.
 - Créer en tant que **user1** un nouveau fichier nommé **/projet1/user1b.txt**.
 - Visualiser les permissions sur ce fichier, vous devriez avoir `-rw-rw-r--. 1 user1 user1    0 29 sept. 10:46 user1b.txt`
 - Les permissions ne sont pas "idéales" :
@@ -153,7 +152,3 @@ On va donc mettre à profit cette possibilité pour configurer le dossier **/pro
 sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step6
 ```
 
-## Vérification
-
-- Pour vérifier votre travail, exécuter la commande `sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step all`.
-> Attention, la vérification n'est pas exhaustive. Il faut avant tout que vous ayez bien compris votre travail.
