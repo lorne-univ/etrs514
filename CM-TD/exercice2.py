@@ -75,8 +75,30 @@ def remove_grp(group_name):
         ["sudo", "/usr/sbin/groupdel", group_name], capture_output=True
     )
     if process.returncode != 0:
-        print(f"Error when removing {group_name}")
+        print(f"Error when removing group {group_name}")
         print(f"remove_grp {group_name} stderr : {process.stderr}")
+
+
+def add_line_to_file_as_user(file_name, line, as_user):
+    """
+    Add a line to a file as user
+    line : the content you want to add at the end of the file
+    as_user: username
+    """
+    print(f"Try Write {line } in {file_name} as {as_user}")
+    uid = pwd.getpwnam(as_user).pw_uid
+    try:
+        os.setuid(uid)
+    except PermissionError:
+        print("Start again the program using sudo.")
+        return
+    try:
+        with open(file_name, "a") as file:
+            file.write(f"{line}\n")
+            file.close()
+    except PermissionError:
+        print_red(f"{as_user} doesn't have the permission to write in {file_name}")
+    print_green(f"Successfull write in {file_name} as {as_user}.")
 
 
 def add_file(file_name, as_user, content=None, permissions=None):
@@ -158,12 +180,193 @@ def add_user(username, password):
 
 
 def remove_user_from_all_group(username):
-    process = subprocess.run(["usermod", "-G", '""', username], capture_output=True)
+    print(f"Remove user {username} from all secondary groups.")
+    process = subprocess.run(["usermod", "-G", "", username], capture_output=True)
 
     if process.returncode != 0:
         print(f"Error when reinit group for user {username}")
         print(f"remove_user_from_all_group {username} stderr : {process.stderr}")
         print(f"Try again using sudo")
+
+
+def compare_two_text(text1, text2):
+    """
+    Give two text and compare them
+    Return : {"same_text":same_text,"diff":diff}
+    same_text : Boolean
+    diff : differences between text
+    """
+    text1 = text1.splitlines(keepends=False)
+    text2 = text2.splitlines(keepends=False)
+    differ = difflib.Differ()
+    diff = differ.compare(text1, text2)
+    diff_list = list(diff)
+    logging.debug("Diff_list : {}".format(diff_list))
+    same_text = True
+    for i, line in enumerate(diff_list):
+        if line[0:1] != " ":
+            try:
+                text1_line = text1[i]
+            except IndexError:
+                text1_line = ""
+            try:
+                text2_line = text2[i]
+            except IndexError:
+                text2_line = ""
+            diff = f"Line {i} are not the same : {text1_line}  {text2_line}"
+            same_text = False
+
+            break
+    return {"same_text": same_text, "diff": diff}
+
+
+def check_content_of_file(file_path, expected_content):
+    if os.path.exists(file_path):
+        print_green(f"{file_path} -> found")
+        with open(file_path, "r") as file:
+            read_content = file.read()
+            logging.debug(
+                "File {}\nExpected content: {}\nRead content: {}".format(
+                    file_path, expected_content, read_content
+                )
+            )
+            comparison = compare_two_text(expected_content, read_content)
+            if comparison["same_text"]:
+                print_green(f"Content of {file_path} -> OK")
+            else:
+                print_red(f"Content of {file_path} -> KO")
+                print(
+                    f"Diff between expected and read content of {file_path} :\n{comparison.get('diff', '')}"
+                )
+
+    else:
+        print_red(f"{file_path} -> not found")
+
+
+def check_file_exist(file):
+    """
+    Check if a file exists.
+    file : path of the file
+    """
+    if os.path.exists(file):
+        print_green(f"{file} exists")
+        return True
+    else:
+        print_red(f"{file} doesn't exist")
+        return False
+
+
+def check_user_exists(username):
+    """
+    This check the existence of the user in the /etc/passwd
+    """
+    try:
+        pwd.getpwnam(username)
+    except KeyError:
+        print_red(f"{username} doesn't exists")
+        exit(1)
+    print_green(f"{username} exists")
+
+
+def check_user_password_set(username):
+    try:
+        shadow_password = spwd.getspnam(username).sp_pwdp
+        logging.debug("{}".format(shadow_password))
+    except PermissionError:
+        print_red("Restart the verification as root, using sudo")
+        exit(1)
+    except KeyError:
+        print_red(f"no password found for {username}")
+        exit(1)
+    if shadow_password != "!!":
+        print_green(f"{username} has a password")
+    else:
+        print_red(f"no password found for {username}")
+        exit(1)
+
+
+def check_permissions(file, expected_permission):
+    """
+    file : path of the file
+    expected_permission : {"owner" : root ,"group":root :, "mode": "0777" }
+    return : True or False
+    """
+    try:
+        statinfo = os.stat(file)
+    except FileNotFoundError:
+        print_red(f"{file} not found")
+        exit(1)
+    except PermissionError:
+        print_red(
+            f"You don't have the permission to access the file!\nTry starting the verification using *sudo*."
+        )
+        exit(1)
+    owner = pwd.getpwuid(statinfo.st_uid).pw_name
+    if owner == expected_permission["owner"]:
+        group = grp.getgrgid(statinfo.st_gid).gr_name
+        if group == expected_permission["group"]:
+            # We focus only on the ISUID/ISGID/ISVTX and owner and group and other permissions [-4:]
+            mode = oct(statinfo.st_mode)[-4:]
+            if check_mode(mode, expected_permission["mode"]):
+                print_green(
+                    f"{file} -> Permissions : owner, group_owner and mode are correct"
+                )
+                return True
+            else:
+                print_red(
+                    f"{file} mode is not correct.\nExpected:\t{expected_permission['mode']}\nCurrent:\t{mode}\nIf a \"!\" remplaces a number in the expected_mode. You can put what you want for this number.\n"
+                )
+                return
+        else:
+            print_red(
+                f"{file} group owner is not correct.\nExpected group :{expected_permission['group']}\nCurrent group :{group}\n"
+            )
+    else:
+        print_red(
+            f"{file} owner is not correct.\nExpected owner:{expected_permission['owner']}\nCurrent owner:{owner}\n"
+        )
+    return False
+
+
+def check_group_exists(group_name):
+    """
+    Check if a group exists
+    """
+    try:
+        grp.getgrnam(group_name)
+        print_green(f"{group_name} exists.")
+    except KeyError:
+        print_red(f"{group_name} doesn't exist.")
+        exit(1)
+
+
+def check_user_in_group(group_name, user):
+    """
+    Test if user belongs to a posix group
+    Return True or False
+    """
+    try:
+        group_infos = grp.getgrnam(group_name)
+        if user in group_infos.gr_mem:
+            print_green(f"{user} in group {group_name}.")
+            return True
+        else:
+            print_red(f"{user} not in group {group_name}.")
+            return False
+    except KeyError:
+        print_red(f"{group_name} doesn't exist.")
+        exit(1)
+
+
+def check_mode(current_mode, expected_mode):
+    """
+    Check the mode of a file
+    Exemple current_mode=0777, expected_mode=07!7 -> Return True
+    """
+    for i, char in enumerate(current_mode):
+        if char != expected_mode[i] and expected_mode[i] != "!":
+            return False
+    return True
 
 
 def init_step0():
@@ -279,192 +482,12 @@ def init(step):
     steps.get(step, init_all)()
 
 
-def compare_two_text(text1, text2):
-    """
-    Give two text and compare them
-    Return : {"same_text":same_text,"diff":diff}
-    same_text : Boolean
-    diff : differences between text
-    """
-    text1 = text1.splitlines(keepends=False)
-    text2 = text2.splitlines(keepends=False)
-    differ = difflib.Differ()
-    diff = differ.compare(text1, text2)
-    diff_list = list(diff)
-    logging.debug("Diff_list : {}".format(diff_list))
-    same_text = True
-    for i, line in enumerate(diff_list):
-        if line[0:1] != " ":
-            try:
-                text1_line = text1[i]
-            except IndexError:
-                text1_line = ""
-            try:
-                text2_line = text2[i]
-            except IndexError:
-                text2_line = ""
-            diff = f"Line {i} are not the same : {text1_line}  {text2_line}"
-            same_text = False
-
-            break
-    return {"same_text": same_text, "diff": diff}
-
-
-def check_content_of_file(file_path, expected_content):
-    if os.path.exists(file_path):
-        print_green(f"{file_path} -> found")
-        with open(file_path, "r") as file:
-            read_content = file.read()
-            logging.debug(
-                "File {}\nExpected content: {}\nRead content: {}".format(
-                    file_path, expected_content, read_content
-                )
-            )
-            comparison = compare_two_text(expected_content, read_content)
-            if comparison["same_text"]:
-                print_green(f"Content of {file_path} -> OK")
-            else:
-                print_red(f"Content of {file_path} -> KO")
-                print(
-                    f"Diff between expected and read content of {file_path} :\n{comparison.get('diff', '')}"
-                )
-
-    else:
-        print_red(f"{file_path} -> not found")
-
-
-def check_file_exist(file):
-    """
-    Check if a file exists.
-    file : path of the file
-    """
-    if os.path.exists(file):
-        print_green(f"{file} exists")
-        return True
-    else:
-        print_red(f"{file} doesn't exist")
-        return False
-
-
-def check_user_exists(username):
-    """
-    This check the existence of the user in the /etc/passwd
-    """
-    try:
-        pwd.getpwnam(username)
-    except KeyError:
-        print_red(f"{username} doesn't exists")
-        exit(1)
-    print_green(f"{username} exists")
-
-
-def check_user_password_set(username):
-    try:
-        shadow_password = spwd.getspnam(username).sp_pwdp
-        logging.debug("{}".format(shadow_password))
-    except PermissionError:
-        print_red("Restart the verification as root, using sudo")
-        exit(1)
-    except KeyError:
-        print_red(f"no password found for {username}")
-        exit(1)
-    if shadow_password != "!!":
-        print_green(f"{username} has a password")
-    else:
-        print_red(f"no password found for {username}")
-        exit(1)
-
-
 def check_step1():
     """
     Check if user1 exists
     """
     check_user_exists("user1")
     check_user_password_set("user1")
-
-
-def check_mode(current_mode, expected_mode):
-    """
-    Check the mode of a file
-    Exemple current_mode=0777, expected_mode=07!7 -> Return True
-    """
-    for i, char in enumerate(current_mode):
-        if char != expected_mode[i] and expected_mode[i] != "!":
-            return False
-    return True
-
-
-def check_permissions(file, expected_permission):
-    """
-    file : path of the file
-    expected_permission : {"owner" : root ,"group":root :, "mode": "0777" }
-    return : True or False
-    """
-    try:
-        statinfo = os.stat(file)
-    except FileNotFoundError:
-        print_red(f"{file} not found")
-        exit(1)
-    except PermissionError:
-        print_red(
-            f"You don't have the permission to access the file!\nTry starting the verification using *sudo*."
-        )
-        exit(1)
-    owner = pwd.getpwuid(statinfo.st_uid).pw_name
-    if owner == expected_permission["owner"]:
-        group = grp.getgrgid(statinfo.st_gid).gr_name
-        if group == expected_permission["group"]:
-            # We focus only on the ISUID/ISGID/ISVTX and owner and group and other permissions [-4:]
-            mode = oct(statinfo.st_mode)[-4:]
-            if check_mode(mode, expected_permission["mode"]):
-                print_green(
-                    f"{file} -> Permissions : owner, group_owner and mode are correct"
-                )
-                return True
-            else:
-                print_red(
-                    f"{file} mode is not correct.\nExpected:\t{expected_permission['mode']}\nCurrent:\t{mode}\nIf a \"!\" remplaces a number in the expected_mode. You can put what you want for this number.\n"
-                )
-                return
-        else:
-            print_red(
-                f"{file} group owner is not correct.\nExpected group :{expected_permission['group']}\nCurrent group :{group}\n"
-            )
-    else:
-        print_red(
-            f"{file} owner is not correct.\nExpected owner:{expected_permission['owner']}\nCurrent owner:{owner}\n"
-        )
-    return False
-
-
-def check_group_exists(group_name):
-    """
-    Check if a group exists
-    """
-    try:
-        grp.getgrnam(group_name)
-        print_green(f"{group_name} exists.")
-    except KeyError:
-        print_red(f"{group_name} doesn't exist.")
-        exit(1)
-
-
-def check_user_in_group(group_name, user):
-    """
-    Test if user belongs to a posix group
-    Return True or False
-    """
-    try:
-        group_infos = grp.getgrnam(group_name)
-        if user in group_infos.gr_mem:
-            print_green(f"{user} in group {group_name}.")
-            return True
-        else:
-            print_red(f"{user} not in group {group_name}.")
-            return False
-    except KeyError:
-        print_red(f"{group_name} doesn't exist.")
-        exit(1)
 
 
 def check_step2():
@@ -546,6 +569,10 @@ def check_step5():
     )
 
 
+def check_step6():
+    add_line_to_file_as_user("/projet1/user1c.txt", "Test de user2", "user2")
+
+
 def check_all():
     logging.debug("all")
 
@@ -561,6 +588,7 @@ def check(step):
         "step3": check_step3,
         "step4": check_step4,
         "step5": check_step5,
+        "step6": check_step6,
         "all": check_all,
     }
     steps.get(step, check_all)()
