@@ -134,6 +134,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step5
 
 ### Etape 6 : ACL et héritage
 
+> Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step6`.
 
 La machine virtuelle mise à disposition fonctionne avec un système Linux supportant les ACL. *Attention* ce n'est pas le cas de tous les systèmes.
 On va donc mettre à profit cette possibilité pour configurer le dossier **/projet1**.
