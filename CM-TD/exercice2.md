@@ -17,7 +17,7 @@ Si vous avez déjà commencé l'exercice et que vous voulez le recommencer en pa
 ### Etape 1 : Création d'un utilisateur
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step1`.
-> Remarque : cette commande est utile **uniquement** si vous souhaitez recommencer l'étape 1.
+> <br> Cette commande est utile **uniquement** si vous souhaitez recommencer l'étape 1.
 
 
 - Créer l'utilisateur **user1** et affecter lui le mot de passe **user1**.
@@ -46,7 +46,7 @@ On va maintenant vérifier à quel(s) groupe(s) appartient l'utilisateur nouvell
 ### Etape 2 : Première approche des permissions sur les fichiers et les dossiers
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step2`.
-> Remarque : cette commande est utile **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
+> <br> Cette commande doit être utilisée **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
 
 
  - En tant qu'utilisateur root, créer un dossier **/projet1**
