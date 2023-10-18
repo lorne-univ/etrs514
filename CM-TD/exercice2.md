@@ -69,7 +69,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
 ### Etape 3 : Essai de partage en local de fichiers/dossiers entre utilisateurs
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step3`.
-> Remarque : cette commande est utile **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
+> <br> Cette commande doit être utilisée **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
 
 
 - Créer un deuxième utilisateur **user2** mot de passe **user2**
@@ -90,7 +90,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step3
 ### Etape 4 : Test avec un intrus
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step4`.
-> Remarque : cette commande est utile **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
+> <br> Cette commande doit être utilisée **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
 
 
 - Créer un utilisateur **intrus** mot de passe **intrus**.
@@ -110,7 +110,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step4
 ### Etape 5 : Création d'un groupe projet1 et affectation des permissions au groupe.
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step5`.
-> Remarque : cette commande est utile **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
+> <br> Cette commande doit être utilisée **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
 
 
 Pour améliorer la sécurité du dossier partagé local, il est nécessaire de :
@@ -145,7 +145,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step5
 ### Etape 6 : ACL et héritage
 
 > Pour initialiser cette étape : `sudo /home/etudiant/etrs514/CM-TD/exercice2.py init --step step6`.
-> Remarque : cette commande est utile **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
+> <br> Cette commande doit être utilisée **uniquement** si vous n'êtes pas sûr que ce que vous avez réalisé à l'étape précédente est correct.
 
 La machine virtuelle mise à disposition fonctionne avec un système Linux supportant les ACL. *Attention* ce n'est pas le cas de tous les systèmes.
 On va donc mettre à profit cette possibilité pour configurer le dossier **/projet1**.
