@@ -609,7 +609,7 @@ def check_step4():
     check_user_password_set("intrus")
     file1 = "/projet1/user2.txt"
     check_content_of_file(
-        file1, "Premier test de user1.\nDeuxième test de user2.\nAccès par instrus."
+        file1, "Premier test de user2.\nDeuxième test de user1.\nAccès par intrus."
     )
 
 
