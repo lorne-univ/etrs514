@@ -457,6 +457,8 @@ def init_step5():
     """
     Initialize step5
     """
+    add_user("user2", "user2")
+    add_user("user1", "user1")
     remove_user("intrus")
     add_file(
         "/projet1/user2.txt",
@@ -479,6 +481,8 @@ def init_step6():
     """
     Initialize step6
     """
+    add_user("user2", "user2")
+    add_user("user1", "user1")
     add_user("intrus", "intrus")
     folder = "/projet1"
     print("Removing and recreating /projet1")
@@ -668,11 +672,11 @@ def check(step):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    logging.info(
-        "{}PROGRAM not finished yet. Don't use !!!{}".format(
-            colors["red"], colors["reset"]
-        )
-    )
+    # logging.info(
+    #     "{}PROGRAM not finished yet. Don't use !!!{}".format(
+    #         colors["red"], colors["reset"]
+    #     )
+    # )
     parser = argparse.ArgumentParser(
         prog="exerice 2",
         description="Programme de tests et d'initialisation de l'exerice 2 du module ETRS514_TRI",
