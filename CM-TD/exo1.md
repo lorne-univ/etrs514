@@ -27,7 +27,7 @@ C'est moins rapide mais ça fonctionne aussi.
 ```
 > Ici le plus rapide est d'utiliser un éditeur de texte et de faire un copier-coller (recherche les raccourcis clavier MobaXterm pour des copier et coller).<br>
 
-- Créer une copie du fichier précédent (**exercice_1b.txt**) dans le dossier **/home/etudiant**.
+- Créer une copie du fichier précédent (**exercice1_b.txt**) dans le dossier **/home/etudiant**.
 - Créer un fichier **/home/etudiant/exercice1/exo1.sh** contenant les lignes suivantes :
 ```
 #!/bin/sh
