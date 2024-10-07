@@ -64,7 +64,7 @@ sudo /home/etudiant/etrs514/CM-TD/exercice2.py check --step step2
  - Noter les permissions sur le fichier **/projet1/user1.txt**.
     - Propriétaire : user1
     - Groupe propriétaire : user1
-    - mode : 0644
+    - mode : 0664
 
 ### Etape 3 : Essai de partage en local de fichiers/dossiers entre utilisateurs
 
